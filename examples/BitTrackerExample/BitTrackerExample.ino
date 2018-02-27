@@ -8,7 +8,7 @@
 BitTracker8 Test8;
 BitTracker16 Test16;
 BitTracker32 Test32;
-//BitTrackerArray TestArray;
+BitTrackerArray TestArray;
 
 
 uint32_t Start, Elapsed;
@@ -31,8 +31,8 @@ void setup()
 	DebugBitTracker(&Test16);
 	Serial.println(F("Bit Tracker 32 "));
 	DebugBitTracker(&Test32);
-	//Serial.println(F("Bit Tracker 128 "));
-	//DebugBitTracker(&TestArray);
+	Serial.println(F("Bit Tracker 128 "));
+	DebugBitTracker(&TestArray);
 }
 
 void DebugBitTracker(AbstractBitTracker * bitTracker)
