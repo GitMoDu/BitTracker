@@ -7,7 +7,8 @@
 
 BitTracker8 Test8;
 BitTracker16 Test16;
-BitTrackerArray TestArray;
+BitTracker32 Test32;
+BitTracker128 TestLarge;
 
 
 uint32_t Start, Elapsed;
@@ -26,18 +27,29 @@ void setup()
 
 	Serial.println(F("Bit Tracker 8 "));
 	DebugBitTracker(&Test8);
-	Serial.println(F("Bit Tracker 16 "));
+
+	Serial.println(F("Bit Tracker 16"));
 	DebugBitTracker(&Test16);
-	Serial.println(F("Bit Tracker 128 "));
-	DebugBitTracker(&TestArray);
+
+	Serial.println(F("Bit Tracker 32"));
+	DebugBitTracker(&Test32);
+
+	Serial.println(F("Bit Tracker 128"));
+	DebugBitTracker(&TestLarge);
+
+	Serial.println();
+
+	Serial.println(F("Bit Tracker Test Complete"));
 }
 
 void DebugBitTracker(AbstractBitTracker * bitTracker)
 {
 	bool Grunt = false;
+	Serial.print(F("Clear all: "));
 	bitTracker->ClearAllPending();
 	OutputBitTrackerStatus(bitTracker);
 
+	Serial.print(F("Set all pending: "));
 	bitTracker->SetAllPending();
 	OutputBitTrackerStatus(bitTracker);
 
@@ -66,23 +78,24 @@ void DebugBitTracker(AbstractBitTracker * bitTracker)
 	Serial.print(F("Writing "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.print(F(" bits took "));
-	Serial.print(Elapsed/ bitTracker->GetBitCount());
+	Serial.print(Elapsed / bitTracker->GetBitCount());
 	Serial.println(F(" us per bit."));
 
-	Serial.println();
+	Serial.println(F("Random clear walk..."));
 
 	OutputBitTrackerStatus(bitTracker);
 	while (bitTracker->HasPending())
 	{
 		uint8_t RandomIndex = random(bitTracker->GetBitCount());
+
 		if (bitTracker->IsBitPending(RandomIndex))
 		{
 			bitTracker->ClearBitPending(RandomIndex);
 			OutputBitTrackerStatus(bitTracker);
 		}
 	}
+	Serial.println(F("... done."));
 
-	Serial.println();
 	Serial.println();
 }
 
@@ -102,7 +115,4 @@ void OutputBitTrackerStatus(AbstractBitTracker * bitTracker)
 
 void loop()
 {
-
-  /* add main program code here */
-
 }
