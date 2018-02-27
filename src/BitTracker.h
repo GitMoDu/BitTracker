@@ -7,6 +7,12 @@
 
 #include <Arduino.h>
 
+#define BYTE_COUNT_16_BIT	2
+#define BYTE_COUNT_32_BIT	4 
+#define BYTE_COUNT_128_BIT	16
+
+#define BITS_IN_BYTE		8
+
 class AbstractBitTracker
 {
 public:
@@ -39,12 +45,12 @@ public:
 class BitTracker8 : public AbstractBitTracker
 {
 private:
-	uint8_t Blocks = 0;
+	uint8_t Block = 0;
 public:
 	//Input index should never be larger than 7
 	bool IsBitPending(const uint8_t index)
 	{
-		return Blocks & 1 << index;
+		return Block & 1 << index;
 	}
 
 	uint8_t GetBitCount() const
@@ -54,92 +60,51 @@ public:
 
 	void SetBitPending(const uint8_t index)
 	{
-		Blocks |= 1 << index;
+		Block |= (1 << index);
 	}
 
 	void ClearBitPending(const uint8_t index)
 	{
-		Blocks &= ~(1 << index);
+		Block &= ~(1 << index);
 	}
 
 	void SetAllPending()
 	{
-		Blocks = 0xFF;
+		Block = 0xFF;
 	}
 
 	void ClearAllPending()
 	{
-		Blocks = 0;
+		Block = 0;
 	}
 
 	bool HasPending()
 	{
-		return Blocks > 0;
+		return Block > 0;
 	}
 };
 
 class BitTracker16 : public AbstractBitTracker
 {
 private:
-	uint16_t Blocks = 0;
-public:
-	//Input index should never be larger than 15
-	bool IsBitPending(const uint8_t index)
-	{
-		return Blocks & 1 << index;
-	}
-
-	uint8_t GetBitCount() const
-	{
-		return 16;
-	}
-
-	void SetBitPending(const uint8_t index)
-	{
-		Blocks |= 1 << index;
-	}
-
-	void ClearBitPending(const uint8_t index)
-	{
-		Blocks &= ~(1 << index);
-	}
-
-	void SetAllPending()
-	{
-		Blocks = 0xFFFF;
-	}
-
-	void ClearAllPending()
-	{
-		Blocks = 0;
-	}
-
-	bool HasPending()
-	{
-		return Blocks > 0;
-	}
-};
-
-//Slower than all of the others, most scalable from 128 bits to more!
-class BitTrackerArray : public AbstractBitTracker
-{
-#define BLOCK_ARRAY_SIZE_BYTES 16
-#define BITS_IN_BYTE 8
-private:
-	uint8_t Blocks[BLOCK_ARRAY_SIZE_BYTES];
-
+	uint8_t Blocks[BYTE_COUNT_16_BIT];
 	uint8_t BlockIndex;
+
 public:
-	//Input index should never be larger than BLOCK_ARRAY_SIZE_BYTES*8
+	//Input index should never be larger than BYTE_COUNT_16_BIT*8
 	bool IsBitPending(const uint8_t index)
 	{
+		if (index > (BYTE_COUNT_16_BIT*BITS_IN_BYTE))
+		{
+			Serial.println(F("AYYY LMAOOOOOOOOOOOOOOOOOOOOO"));
+		}
 		BlockIndex = index / BITS_IN_BYTE;
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
 	}
 
 	uint8_t GetBitCount() const
 	{
-		return BLOCK_ARRAY_SIZE_BYTES * BITS_IN_BYTE;
+		return BYTE_COUNT_16_BIT * BITS_IN_BYTE;
 	}
 
 	void SetBitPending(const uint8_t index)
@@ -156,7 +121,7 @@ public:
 
 	void SetAllPending()
 	{
-		for (uint8_t i = 0; i < BLOCK_ARRAY_SIZE_BYTES; i++)
+		for (uint8_t i = 0; i < BYTE_COUNT_16_BIT; i++)
 		{
 			Blocks[i] = 0xFF;
 		}
@@ -164,7 +129,7 @@ public:
 
 	void ClearAllPending()
 	{
-		for (uint8_t i = 0; i < BLOCK_ARRAY_SIZE_BYTES; i++)
+		for (uint8_t i = 0; i < BYTE_COUNT_16_BIT; i++)
 		{
 			Blocks[i] = 0;
 		}
@@ -172,9 +137,133 @@ public:
 
 	bool HasPending()
 	{
-		for (uint8_t i = 0; i < BLOCK_ARRAY_SIZE_BYTES; i++)
+		for (uint8_t i = 0; i < BYTE_COUNT_16_BIT; i++)
 		{
-			if (Blocks[i] >= 0)
+			if (Blocks[i] > 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
+class BitTracker32 : public AbstractBitTracker
+{
+private:
+	uint8_t Blocks[BYTE_COUNT_32_BIT];
+	uint8_t BlockIndex;
+
+public:
+	//Input index should never be larger than BYTE_COUNT_32_BIT*8
+	bool IsBitPending(const uint8_t index)
+	{
+		if (index > (BYTE_COUNT_32_BIT*BITS_IN_BYTE))
+		{
+			Serial.println(F("AYYY LMAOOOOOOOOOOOOOOOOOOOOO"));
+		}
+		BlockIndex = index / BITS_IN_BYTE;
+		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
+	}
+
+	uint8_t GetBitCount() const
+	{
+		return BYTE_COUNT_32_BIT * BITS_IN_BYTE;
+	}
+
+	void SetBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
+	}
+
+	void ClearBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
+	}
+
+	void SetAllPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
+		{
+			Blocks[i] = 0xFF;
+		}
+	}
+
+	void ClearAllPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
+		{
+			Blocks[i] = 0;
+		}
+	}
+
+	bool HasPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
+		{
+			if (Blocks[i] > 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
+class BitTracker128 : public AbstractBitTracker
+{
+private:
+	uint8_t Blocks[BYTE_COUNT_128_BIT];
+	uint8_t BlockIndex;
+
+public:
+	//Input index should never be larger than BYTE_COUNT_128_BIT*8
+	bool IsBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
+	}
+
+	uint8_t GetBitCount() const
+	{
+		return BYTE_COUNT_128_BIT * BITS_IN_BYTE;
+	}
+
+	void SetBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
+	}
+
+	void ClearBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
+	}
+
+	void SetAllPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_128_BIT; i++)
+		{
+			Blocks[i] = 0xFF;
+		}
+	}
+
+	void ClearAllPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_128_BIT; i++)
+		{
+			Blocks[i] = 0;
+		}
+	}
+
+	bool HasPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_128_BIT; i++)
+		{
+			if (Blocks[i] > 0)
 			{
 				return true;
 			}
