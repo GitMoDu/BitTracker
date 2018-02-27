@@ -120,48 +120,6 @@ public:
 	}
 };
 
-class BitTracker32 : public AbstractBitTracker
-{
-private:
-	uint32_t Blocks = 0;
-public:
-	//Input index should never be larger than 31
-	bool IsBitPending(const uint8_t index)
-	{
-		return Blocks & 1 << index;
-	}
-
-	uint8_t GetBitCount() const
-	{
-		return 32;
-	}
-
-	void SetBitPending(const uint8_t index)
-	{
-		Blocks |= 1 << index;
-	}
-
-	void ClearBitPending(const uint8_t index)
-	{
-		Blocks &= ~(1 << index);
-	}
-
-	void SetAllPending()
-	{
-		Blocks = 0xFFFFFF;
-	}
-
-	void ClearAllPending()
-	{
-		Blocks = 0;
-	}
-
-	bool HasPending()
-	{
-		return Blocks > 0;
-	}
-};
-
 //Slower than all of the others, most scalable from 128 bits to more!
 class BitTrackerArray : public AbstractBitTracker
 {
