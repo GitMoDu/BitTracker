@@ -51,6 +51,7 @@ void DebugBitTracker(AbstractBitTracker * bitTracker)
 	}
 	Elapsed = micros() - Start;
 
+	bool NoIgnorePlz = Grunt && bitTracker->GetBitCount() > 0;
 
 	Serial.print(F("Reading "));
 	Serial.print(bitTracker->GetBitCount());
