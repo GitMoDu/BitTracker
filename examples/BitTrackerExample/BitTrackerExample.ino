@@ -45,7 +45,7 @@ void setup()
 	Serial.println(F("Bit Tracker Test Complete"));
 }
 
-void DebugBitTracker(AbstractBitTracker * bitTracker)
+void DebugBitTracker(IBitTracker * bitTracker)
 {
 	bool Grunt = false;
 	Serial.print(F("Clear all: "));
@@ -113,7 +113,7 @@ void DebugBitTracker(AbstractBitTracker * bitTracker)
 	Serial.println();
 }
 
-void OutputBitTrackerStatus(AbstractBitTracker * bitTracker)
+void OutputBitTrackerStatus(IBitTracker * bitTracker)
 {
 	Serial.print('[');
 	for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
