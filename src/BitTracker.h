@@ -181,7 +181,7 @@ public:
 
 	uint8_t GetBitCount() const
 	{
-		return BLOCK_ARRAY_SIZE_BYTES;
+		return BLOCK_ARRAY_SIZE_BYTES * BITS_IN_BYTE;
 	}
 
 	void SetBitPending(const uint8_t index)
