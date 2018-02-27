@@ -53,8 +53,8 @@ void DebugBitTracker(AbstractBitTracker * bitTracker)
 	Serial.print(F("Reading "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.print(F(" bits took "));
-	Serial.print(Elapsed);
-	Serial.println(F(" us."));
+	Serial.print(Elapsed / bitTracker->GetBitCount());
+	Serial.println(F(" us per bit."));
 
 	Start = micros();
 	for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
@@ -66,10 +66,10 @@ void DebugBitTracker(AbstractBitTracker * bitTracker)
 	Serial.print(F("Writing "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.print(F(" bits took "));
-	Serial.print(Elapsed);
-	Serial.println(F(" us."));
+	Serial.print(Elapsed/ bitTracker->GetBitCount());
+	Serial.println(F(" us per bit."));
 
-	Serial.println(F(""));
+	Serial.println();
 
 	OutputBitTrackerStatus(bitTracker);
 	while (bitTracker->HasPending())
@@ -88,16 +88,16 @@ void DebugBitTracker(AbstractBitTracker * bitTracker)
 
 void OutputBitTrackerStatus(AbstractBitTracker * bitTracker)
 {
-	Serial.print(F("["));
+	Serial.print('[');
 	for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
 	{
 		Serial.print(bitTracker->IsBitPending(i));
 		if (i < bitTracker->GetBitCount() - 1)
 		{
-			Serial.print(F(","));
+			Serial.print(' ');
 		}
 	}
-	Serial.println(F("]"));
+	Serial.println(']');
 }
 
 void loop()
