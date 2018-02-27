@@ -5,6 +5,9 @@
 
 #define SERIAL_BAUD_RATE 57600
 
+
+#define TEST_SIZE 200
+
 BitTracker8 Test8;
 BitTracker16 Test16;
 BitTracker32 Test32;
@@ -53,32 +56,43 @@ void DebugBitTracker(AbstractBitTracker * bitTracker)
 	bitTracker->SetAllPending();
 	OutputBitTrackerStatus(bitTracker);
 
-	Start = micros();
-	for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
+	Sum = 0;
+	for (uint16_t j = 0; j < TEST_SIZE; j++)
 	{
-		Grunt = bitTracker->IsBitPending(i);
+		Start = micros();
+		for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
+		{
+			Grunt = bitTracker->IsBitPending(i);
+		}
+		Elapsed = micros() - Start;
+		Sum += Elapsed;
 	}
-	Elapsed = micros() - Start;
+
 
 	bool NoIgnorePlz = Grunt && bitTracker->GetBitCount() > 0;
 
 	Serial.print(F("Reading "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.print(F(" bits took "));
-	Serial.print(Elapsed / bitTracker->GetBitCount());
+	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
 	Serial.println(F(" us per bit."));
 
-	Start = micros();
-	for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
+	Sum = 0;
+	for (uint16_t j = 0; j < TEST_SIZE; j++)
 	{
-		bitTracker->SetBitPending(i);
+		Start = micros();
+		for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
+		{
+			bitTracker->SetBitPending(i);
+		}
+		Elapsed = micros() - Start;
+		Sum += Elapsed;
 	}
-	Elapsed = micros() - Start;
 
 	Serial.print(F("Writing "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.print(F(" bits took "));
-	Serial.print(Elapsed / bitTracker->GetBitCount());
+	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
 	Serial.println(F(" us per bit."));
 
 	Serial.println(F("Random clear walk..."));
