@@ -13,7 +13,7 @@
 
 #define BITS_IN_BYTE		8
 
-class AbstractBitTracker
+class IBitTracker
 {
 public:
 	virtual uint8_t GetBitCount() const { return 0; }
@@ -23,7 +23,11 @@ public:
 	virtual void ClearBitPending(const uint8_t index) {}
 	virtual void SetAllPending() {}
 	virtual void ClearAllPending() {}
+	virtual int8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
+};
 
+class AbstractBitTracker : public IBitTracker
+{
 public:
 	int8_t GetNextPendingIndex(const uint8_t startingIndex = 0)
 	{
