@@ -98,10 +98,6 @@ public:
 	//Input index should never be larger than BYTE_COUNT_16_BIT*8
 	bool IsBitPending(const uint8_t index)
 	{
-		if (index > (BYTE_COUNT_16_BIT*BITS_IN_BYTE))
-		{
-			Serial.println(F("AYYY LMAOOOOOOOOOOOOOOOOOOOOO"));
-		}
 		BlockIndex = index / BITS_IN_BYTE;
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
 	}
@@ -162,10 +158,6 @@ public:
 	//Input index should never be larger than BYTE_COUNT_32_BIT*8
 	bool IsBitPending(const uint8_t index)
 	{
-		if (index > (BYTE_COUNT_32_BIT*BITS_IN_BYTE))
-		{
-			Serial.println(F("AYYY LMAOOOOOOOOOOOOOOOOOOOOO"));
-		}
 		BlockIndex = index / BITS_IN_BYTE;
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
 	}
