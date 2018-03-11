@@ -8,7 +8,8 @@
 #include <Arduino.h>
 
 #define BYTE_COUNT_16_BIT	2
-#define BYTE_COUNT_32_BIT	4 
+#define BYTE_COUNT_32_BIT	4
+#define BYTE_COUNT_64_BIT	8
 #define BYTE_COUNT_128_BIT	16
 
 #define BITS_IN_BYTE		8
@@ -198,6 +199,66 @@ public:
 	bool HasPending()
 	{
 		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
+		{
+			if (Blocks[i] > 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
+class BitTracker64 : public AbstractBitTracker
+{
+private:
+	uint8_t Blocks[BYTE_COUNT_64_BIT];
+	uint8_t BlockIndex;
+
+public:
+	//Input index should never be larger than BYTE_COUNT_64_BIT*8
+	bool IsBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
+	}
+
+	uint8_t GetBitCount() const
+	{
+		return BYTE_COUNT_64_BIT * BITS_IN_BYTE;
+	}
+
+	void SetBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
+	}
+
+	void ClearBitPending(const uint8_t index)
+	{
+		BlockIndex = index / BITS_IN_BYTE;
+		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
+	}
+
+	void SetAllPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_64_BIT; i++)
+		{
+			Blocks[i] = 0xFF;
+		}
+	}
+
+	void ClearAllPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_64_BIT; i++)
+		{
+			Blocks[i] = 0;
+		}
+	}
+
+	bool HasPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_64_BIT; i++)
 		{
 			if (Blocks[i] > 0)
 			{
