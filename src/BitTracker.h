@@ -25,6 +25,7 @@ public:
 	virtual void SetAllPending() {}
 	virtual void ClearAllPending() {}
 	virtual int8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
+	virtual void SetCountPending();
 };
 
 class AbstractBitTracker : public IBitTracker
@@ -44,6 +45,14 @@ public:
 		}
 
 		return -1;
+	}
+
+	void SetCountPending() 
+	{
+		for (uint8_t i = 0; i < GetBitCount(); i++)
+		{
+			SetBitPending(i);
+		}
 	}
 };
 
