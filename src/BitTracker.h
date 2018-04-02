@@ -16,6 +16,9 @@
 
 class IBitTracker
 {
+protected:
+	inline virtual void SetBitPendingInternal(const uint8_t index) {}
+
 public:
 	virtual uint8_t GetBitCount() const { return 0; }
 	virtual bool IsBitPending(const uint8_t index) { return false; }
@@ -26,7 +29,7 @@ public:
 	virtual void SetAllPendingForced() {}
 	virtual void ClearAllPending() {}
 	virtual int8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
-	virtual void SetCountPending();
+	inline virtual uint8_t GetSize() { return 0; }
 };
 
 class AbstractBitTracker : public IBitTracker
@@ -37,13 +40,18 @@ private:
 private:
 	void Initialize()
 	{
-		for (uint8_t i = Size; i < GetBitCount(); i++)
+		if (Size <= GetBitCount())
 		{
-			if (ClearBitPending(i))
+			for (uint8_t i = Size; i < GetBitCount(); i++)
 			{
-				return i;
+				ClearBitPending(i);
 			}
 		}
+		else
+		{
+			Size = 0;
+		}
+
 	}
 
 public:
@@ -53,7 +61,7 @@ public:
 		Initialize();
 	}
 
-	inline uint8t_ GetSize() const
+	inline uint8_t GetSize() const
 	{
 		return Size;
 	}
@@ -74,22 +82,19 @@ public:
 		return -1;
 	}
 
-	void SetCountPending() 
-	{
-		for (uint8_t i = 0; i < GetBitCount(); i++)
-		{
-			SetBitPending(i);
-		}
-	}
-
-	void SetAllPending() 
+	void SetAllPending()
 	{
 		for (uint8_t i = 0; i < Size; i++)
 		{
-			if (ClearBitPending(i))
-			{
-				return i;
-			}
+			SetBitPendingInternal(i);
+		}
+	}
+
+	void SetBitPending(const uint8_t index)
+	{
+		if (index < Size)
+		{
+			SetBitPendingInternal(index);
 		}
 	}
 };
@@ -99,7 +104,7 @@ class BitTracker8 : public AbstractBitTracker
 private:
 	uint8_t Block = 0;
 public:
-	BitTracker8(const uint8_t size) : AbstractBitTracker(const uint8_t size)
+	BitTracker8(const uint8_t size) : AbstractBitTracker(size)
 	{
 	}
 	//Input index should never be larger than 7
@@ -113,7 +118,7 @@ public:
 		return 8;
 	}
 
-	void SetBitPending(const uint8_t index)
+	inline void SetBitPendingInternal(const uint8_t index)
 	{
 		Block |= (1 << index);
 	}
@@ -146,7 +151,7 @@ private:
 	uint8_t BlockIndex;
 
 public:
-	BitTracker16(const uint8_t size) : AbstractBitTracker(const uint8_t size)
+	BitTracker16(const uint8_t size) : AbstractBitTracker(size)
 	{
 	}
 	//Input index should never be larger than BYTE_COUNT_16_BIT*8
@@ -161,7 +166,7 @@ public:
 		return BYTE_COUNT_16_BIT * BITS_IN_BYTE;
 	}
 
-	void SetBitPending(const uint8_t index)
+	inline void SetBitPendingInternal(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
 		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
@@ -209,7 +214,7 @@ private:
 	uint8_t BlockIndex;
 
 public:
-	BitTracker32(const uint8_t size) : AbstractBitTracker(const uint8_t size)
+	BitTracker32(const uint8_t size) : AbstractBitTracker(size)
 	{
 	}
 	//Input index should never be larger than BYTE_COUNT_32_BIT*8
@@ -224,7 +229,7 @@ public:
 		return BYTE_COUNT_32_BIT * BITS_IN_BYTE;
 	}
 
-	void SetBitPending(const uint8_t index)
+	inline void SetBitPendingInternal(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
 		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
@@ -272,7 +277,7 @@ private:
 	uint8_t BlockIndex;
 
 public:
-	BitTracker64(const uint8_t size) : AbstractBitTracker(const uint8_t size)
+	BitTracker64(const uint8_t size) : AbstractBitTracker(size)
 	{
 	}
 	//Input index should never be larger than BYTE_COUNT_64_BIT*8
@@ -287,7 +292,7 @@ public:
 		return BYTE_COUNT_64_BIT * BITS_IN_BYTE;
 	}
 
-	void SetBitPending(const uint8_t index)
+	inline void SetBitPendingInternal(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
 		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
@@ -335,7 +340,7 @@ private:
 	uint8_t BlockIndex;
 
 public:
-	BitTracker128(const uint8_t size) : AbstractBitTracker(const uint8_t size)
+	BitTracker128(const uint8_t size) : AbstractBitTracker(size)
 	{
 	}
 	//Input index should never be larger than BYTE_COUNT_128_BIT*8
@@ -350,7 +355,7 @@ public:
 		return BYTE_COUNT_128_BIT * BITS_IN_BYTE;
 	}
 
-	void SetBitPending(const uint8_t index)
+	inline void SetBitPendingInternal(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
 		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
