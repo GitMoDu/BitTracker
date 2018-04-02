@@ -23,6 +23,7 @@ public:
 	virtual void SetBitPending(const uint8_t index) {}
 	virtual void ClearBitPending(const uint8_t index) {}
 	virtual void SetAllPending() {}
+	virtual void SetAllPendingForced() {}
 	virtual void ClearAllPending() {}
 	virtual int8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
 	virtual void SetCountPending();
@@ -80,6 +81,17 @@ public:
 			SetBitPending(i);
 		}
 	}
+
+	void SetAllPending() 
+	{
+		for (uint8_t i = 0; i < Size; i++)
+		{
+			if (ClearBitPending(i))
+			{
+				return i;
+			}
+		}
+	}
 };
 
 class BitTracker8 : public AbstractBitTracker
@@ -111,7 +123,7 @@ public:
 		Block &= ~(1 << index);
 	}
 
-	void SetAllPending()
+	void SetAllPendingForced()
 	{
 		Block = 0xFF;
 	}
@@ -161,7 +173,7 @@ public:
 		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
 	}
 
-	void SetAllPending()
+	void SetAllPendingForced()
 	{
 		for (uint8_t i = 0; i < BYTE_COUNT_16_BIT; i++)
 		{
@@ -224,7 +236,7 @@ public:
 		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
 	}
 
-	void SetAllPending()
+	void SetAllPendingForced()
 	{
 		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
 		{
@@ -287,7 +299,7 @@ public:
 		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
 	}
 
-	void SetAllPending()
+	void SetAllPendingForced()
 	{
 		for (uint8_t i = 0; i < BYTE_COUNT_64_BIT; i++)
 		{
@@ -350,7 +362,7 @@ public:
 		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
 	}
 
-	void SetAllPending()
+	void SetAllPendingForced()
 	{
 		for (uint8_t i = 0; i < BYTE_COUNT_128_BIT; i++)
 		{
