@@ -8,11 +8,11 @@
 
 #define TEST_SIZE 200
 
-BitTracker8 Test8;
-BitTracker16 Test16;
-BitTracker32 Test32;
-BitTracker64 Test64;
-BitTracker128 TestLarge;
+BitTracker8 Test8(8);
+BitTracker16 Test16(16);
+BitTracker32 Test32(32);
+BitTracker64 Test64(64);
+BitTracker128 TestSmallOnLarge(10);
 
 
 uint32_t Start, Elapsed;
@@ -41,8 +41,8 @@ void setup()
 	Serial.println(F("Bit Tracker 64"));
 	DebugBitTracker(&Test64);	
 
-	Serial.println(F("Bit Tracker 128"));
-	DebugBitTracker(&TestLarge);
+	Serial.println(F("Bit Tracker 128 with only 10 used bits"));
+	DebugBitTracker(&TestSmallOnLarge);
 
 	Serial.println();
 
