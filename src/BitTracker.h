@@ -28,7 +28,8 @@ public:
 	virtual void SetAllPending() {}
 	virtual void SetAllPendingForced() {}
 	virtual void ClearAllPending() {}
-	virtual int8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
+	virtual bool Initialize() { return false; }
+	virtual uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
 	inline virtual uint8_t GetSize() { return 0; }
 };
 
@@ -37,8 +38,8 @@ class AbstractBitTracker : public IBitTracker
 private:
 	uint8_t Size = 0;
 
-private:
-	void Initialize()
+protected:
+	bool Initialize()
 	{
 		if (Size <= GetBitCount())
 		{
@@ -46,40 +47,37 @@ private:
 			{
 				ClearBitPending(i);
 			}
+
+			return true;
 		}
 		else
 		{
-			Size = 0;
+			return false;
 		}
-
 	}
 
 public:
 	AbstractBitTracker(const uint8_t size)
 	{
 		Size = size;
-		Initialize();
 	}
 
-	inline uint8_t GetSize() const
+	uint8_t GetSize()
 	{
 		return Size;
 	}
 
-	int8_t GetNextPendingIndex(const uint8_t startingIndex = 0)
+	uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0)
 	{
-		if (HasPending())
+		for (uint8_t i = startingIndex; i < GetSize(); i++)
 		{
-			for (uint8_t i = startingIndex; i < GetBitCount(); i++)
+			if (IsBitPending(i))
 			{
-				if (IsBitPending(i))
-				{
-					return i;
-				}
+				return i;
 			}
 		}
 
-		return -1;
+		return 0;
 	}
 
 	void SetAllPending()
@@ -106,6 +104,7 @@ private:
 public:
 	BitTracker8(const uint8_t size) : AbstractBitTracker(size)
 	{
+		Initialize();
 	}
 	//Input index should never be larger than 7
 	bool IsBitPending(const uint8_t index)
@@ -153,6 +152,7 @@ private:
 public:
 	BitTracker16(const uint8_t size) : AbstractBitTracker(size)
 	{
+		Initialize();
 	}
 	//Input index should never be larger than BYTE_COUNT_16_BIT*8
 	bool IsBitPending(const uint8_t index)
@@ -216,6 +216,7 @@ private:
 public:
 	BitTracker32(const uint8_t size) : AbstractBitTracker(size)
 	{
+		Initialize();
 	}
 	//Input index should never be larger than BYTE_COUNT_32_BIT*8
 	bool IsBitPending(const uint8_t index)
@@ -279,6 +280,7 @@ private:
 public:
 	BitTracker64(const uint8_t size) : AbstractBitTracker(size)
 	{
+		Initialize();
 	}
 	//Input index should never be larger than BYTE_COUNT_64_BIT*8
 	bool IsBitPending(const uint8_t index)
@@ -342,6 +344,7 @@ private:
 public:
 	BitTracker128(const uint8_t size) : AbstractBitTracker(size)
 	{
+		Initialize();
 	}
 	//Input index should never be larger than BYTE_COUNT_128_BIT*8
 	bool IsBitPending(const uint8_t index)
