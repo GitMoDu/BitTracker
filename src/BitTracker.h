@@ -116,6 +116,17 @@ public:
 		return 0;
 	}
 
+	bool HasPending()
+	{
+		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
+		{
+			if (GetRawBlock(i) > 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 class BitTracker8 : public AbstractBitTracker
@@ -223,18 +234,6 @@ public:
 			Blocks[i] = 0;
 		}
 	}
-
-	bool HasPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_16_BIT; i++)
-		{
-			if (Blocks[i] > 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
 };
 
 class BitTracker32 : public AbstractBitTracker
@@ -289,18 +288,6 @@ public:
 		{
 			Blocks[i] = 0;
 		}
-	}
-
-	bool HasPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
-		{
-			if (Blocks[i] > 0)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 };
 
@@ -428,4 +415,3 @@ public:
 	}
 };
 #endif
-
