@@ -40,6 +40,9 @@ private:
 	uint8_t Size = 0;
 
 protected:
+	virtual uint8_t GetSizeInternal() const { return 0; }
+
+protected:
 	bool Initialize()
 	{
 		if (Size <= GetBitCount())
