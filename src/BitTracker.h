@@ -31,7 +31,7 @@ public:
 	virtual void ClearAllPending() {}
 	virtual bool Initialize() { return false; }
 	virtual uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
-	inline virtual uint8_t GetSize() { return 0; }
+	virtual uint8_t GetSize() { return 0; }
 };
 
 class AbstractBitTracker : public IBitTracker
