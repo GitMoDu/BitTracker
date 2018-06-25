@@ -33,6 +33,7 @@ public:
 	virtual uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
 	virtual uint8_t GetSize() { return 0; }
 	virtual uint8_t GetRawBlock(const uint8_t index){return 0;}
+	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex) {}
 };
 
 class AbstractBitTracker : public IBitTracker
@@ -66,6 +67,14 @@ public:
 	AbstractBitTracker(const uint8_t size)
 	{
 		Size = size;
+	}
+
+	void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex)
+	{
+		if (blockIndex < GetSizeInternal())
+		{
+			GetRaw()[blockIndex] = blockValue;
+		}
 	}
 
 	uint8_t GetSize()
