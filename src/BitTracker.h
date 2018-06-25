@@ -32,6 +32,7 @@ public:
 	virtual bool Initialize() { return false; }
 	virtual uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
 	virtual uint8_t GetSize() { return 0; }
+	virtual uint8_t GetRawBlock(const uint8_t index){return 0;}
 };
 
 class AbstractBitTracker : public IBitTracker
@@ -105,6 +106,16 @@ public:
 			SetBitPendingInternal(index);
 		}
 	}
+
+	uint8_t GetRawBlock(const uint8_t blockIndex)
+	{
+		if (blockIndex < GetSizeInternal())
+		{
+			return GetRaw()[blockIndex];
+		}
+		return 0;
+	}
+
 };
 
 class BitTracker8 : public AbstractBitTracker
