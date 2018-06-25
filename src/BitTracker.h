@@ -7,6 +7,7 @@
 
 #include <Arduino.h>
 
+#define BYTE_COUNT_8_BIT	1
 #define BYTE_COUNT_16_BIT	2
 #define BYTE_COUNT_32_BIT	4
 #define BYTE_COUNT_64_BIT	8
