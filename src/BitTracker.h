@@ -40,6 +40,7 @@ private:
 	uint8_t Size = 0;
 
 protected:
+	virtual uint8_t* GetRaw() { return nullptr; }
 	virtual uint8_t GetSizeInternal() const { return 0; }
 
 protected:
@@ -110,11 +111,16 @@ class BitTracker8 : public AbstractBitTracker
 {
 private:
 	uint8_t Block = 0;
+
+protected:
+	uint8_t * GetRaw() { return &Block; }
+
 public:
 	BitTracker8(const uint8_t size) : AbstractBitTracker(size)
 	{
 		Initialize();
 	}
+
 	//Input index should never be larger than 7
 	bool IsBitPending(const uint8_t index)
 	{
@@ -158,11 +164,15 @@ private:
 	uint8_t Blocks[BYTE_COUNT_16_BIT];
 	uint8_t BlockIndex;
 
+protected:
+	uint8_t * GetRaw() { return Blocks; }
+
 public:
 	BitTracker16(const uint8_t size) : AbstractBitTracker(size)
 	{
 		Initialize();
 	}
+
 	//Input index should never be larger than BYTE_COUNT_16_BIT*8
 	bool IsBitPending(const uint8_t index)
 	{
@@ -221,6 +231,9 @@ class BitTracker32 : public AbstractBitTracker
 private:
 	uint8_t Blocks[BYTE_COUNT_32_BIT];
 	uint8_t BlockIndex;
+
+protected:
+	uint8_t * GetRaw() { return Blocks; }
 
 public:
 	BitTracker32(const uint8_t size) : AbstractBitTracker(size)
@@ -286,6 +299,9 @@ private:
 	uint8_t Blocks[BYTE_COUNT_64_BIT];
 	uint8_t BlockIndex;
 
+protected:
+	uint8_t * GetRaw() { return Blocks; }
+
 public:
 	BitTracker64(const uint8_t size) : AbstractBitTracker(size)
 	{
@@ -344,6 +360,9 @@ class BitTracker128 : public AbstractBitTracker
 private:
 	uint8_t Blocks[BYTE_COUNT_128_BIT];
 	uint8_t BlockIndex;
+
+protected:
+	uint8_t * GetRaw() { return Blocks; }
 
 public:
 	BitTracker128(const uint8_t size) : AbstractBitTracker(size)
