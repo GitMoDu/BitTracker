@@ -120,7 +120,7 @@ public:
 
 	uint8_t GetSizeInternal() const
 	{
-		return 8;
+		return BYTE_COUNT_8_BIT;
 	}
 
 	inline void SetBitPendingInternal(const uint8_t index)
@@ -169,7 +169,7 @@ public:
 
 	uint8_t GetSizeInternal() const
 	{
-		return BYTE_COUNT_16_BIT * BITS_IN_BYTE;
+		return BYTE_COUNT_16_BIT;
 	}
 
 	inline void SetBitPendingInternal(const uint8_t index)
@@ -233,7 +233,7 @@ public:
 
 	uint8_t GetSizeInternal() const
 	{
-		return BYTE_COUNT_32_BIT * BITS_IN_BYTE;
+		return BYTE_COUNT_32_BIT;
 	}
 
 	inline void SetBitPendingInternal(const uint8_t index)
@@ -295,11 +295,6 @@ public:
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
 	}
 
-	uint8_t GetBitCount() const
-	{
-		return BYTE_COUNT_64_BIT * BITS_IN_BYTE;
-	}
-
 	inline void SetBitPendingInternal(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
@@ -357,11 +352,6 @@ public:
 	{
 		BlockIndex = index / BITS_IN_BYTE;
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
-	}
-
-	uint8_t GetBitCount() const
-	{
-		return BYTE_COUNT_128_BIT * BITS_IN_BYTE;
 	}
 
 	inline void SetBitPendingInternal(const uint8_t index)
