@@ -68,6 +68,11 @@ public:
 		return Size;
 	}
 
+	uint8_t GetBitCount() const
+	{
+		return GetSizeInternal()*BITS_IN_BYTE;
+	}
+
 	uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0)
 	{
 		for (uint8_t i = startingIndex; i < GetSize(); i++)
@@ -113,7 +118,7 @@ public:
 		return Block & 1 << index;
 	}
 
-	uint8_t GetBitCount() const
+	uint8_t GetSizeInternal() const
 	{
 		return 8;
 	}
@@ -162,7 +167,7 @@ public:
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
 	}
 
-	uint8_t GetBitCount() const
+	uint8_t GetSizeInternal() const
 	{
 		return BYTE_COUNT_16_BIT * BITS_IN_BYTE;
 	}
@@ -226,7 +231,7 @@ public:
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
 	}
 
-	uint8_t GetBitCount() const
+	uint8_t GetSizeInternal() const
 	{
 		return BYTE_COUNT_32_BIT * BITS_IN_BYTE;
 	}
