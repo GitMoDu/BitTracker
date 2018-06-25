@@ -46,7 +46,7 @@ protected:
 protected:
 	bool Initialize()
 	{
-		if (Size <= GetBitCount())
+		if (Size <= GetBitCount() && GetRaw() != nullptr)
 		{
 			for (uint8_t i = Size; i < GetBitCount(); i++)
 			{
