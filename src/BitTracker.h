@@ -145,6 +145,7 @@ private:
 
 protected:
 	uint8_t * GetRaw() { return &Block; }
+	uint8_t GetSizeInternal() const	{ return BYTE_COUNT_8_BIT; }
 
 public:
 	BitTracker8(const uint8_t size) : AbstractBitTracker(size)
@@ -197,6 +198,7 @@ private:
 
 protected:
 	uint8_t * GetRaw() { return Blocks; }
+	uint8_t GetSizeInternal() const { return BYTE_COUNT_16_BIT; }
 
 public:
 	BitTracker16(const uint8_t size) : AbstractBitTracker(size)
@@ -253,6 +255,7 @@ private:
 
 protected:
 	uint8_t * GetRaw() { return Blocks; }
+	uint8_t GetSizeInternal() const { return BYTE_COUNT_32_BIT; }
 
 public:
 	BitTracker32(const uint8_t size) : AbstractBitTracker(size)
@@ -264,11 +267,6 @@ public:
 	{
 		BlockIndex = index / BITS_IN_BYTE;
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
-	}
-
-	uint8_t GetSizeInternal() const
-	{
-		return BYTE_COUNT_32_BIT;
 	}
 
 	inline void SetBitPendingInternal(const uint8_t index)
@@ -308,6 +306,7 @@ private:
 
 protected:
 	uint8_t * GetRaw() { return Blocks; }
+	uint8_t GetSizeInternal() const { return BYTE_COUNT_64_BIT; }
 
 public:
 	BitTracker64(const uint8_t size) : AbstractBitTracker(size)
@@ -370,6 +369,7 @@ private:
 
 protected:
 	uint8_t * GetRaw() { return Blocks; }
+	uint8_t GetSizeInternal() const { return BYTE_COUNT_128_BIT; }
 
 public:
 	BitTracker128(const uint8_t size) : AbstractBitTracker(size)
