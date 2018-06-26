@@ -153,15 +153,10 @@ public:
 		Initialize();
 	}
 
-	//Input index should never be larger than 7
+	//Input index should never be larger than BITS_IN_BYTE - 1
 	bool IsBitPending(const uint8_t index)
 	{
 		return Block & 1 << index;
-	}
-
-	uint8_t GetSizeInternal() const
-	{
-		return BYTE_COUNT_8_BIT;
 	}
 
 	inline void SetBitPendingInternal(const uint8_t index)
@@ -206,16 +201,11 @@ public:
 		Initialize();
 	}
 
-	//Input index should never be larger than BYTE_COUNT_16_BIT*8
+	//Input index should never be larger than BYTE_COUNT_16_BIT*BITS_IN_BYTE - 1
 	bool IsBitPending(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
 		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
-	}
-
-	uint8_t GetSizeInternal() const
-	{
-		return BYTE_COUNT_16_BIT;
 	}
 
 	inline void SetBitPendingInternal(const uint8_t index)
@@ -262,7 +252,8 @@ public:
 	{
 		Initialize();
 	}
-	//Input index should never be larger than BYTE_COUNT_32_BIT*8
+
+	//Input index should never be larger than BYTE_COUNT_32_BIT*BITS_IN_BYTE - 1
 	bool IsBitPending(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
@@ -313,7 +304,8 @@ public:
 	{
 		Initialize();
 	}
-	//Input index should never be larger than BYTE_COUNT_64_BIT*8
+
+	//Input index should never be larger than BYTE_COUNT_64_BIT*BITS_IN_BYTE - 1
 	bool IsBitPending(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
@@ -376,7 +368,8 @@ public:
 	{
 		Initialize();
 	}
-	//Input index should never be larger than BYTE_COUNT_128_BIT*8
+
+	//Input index should never be larger than BYTE_COUNT_128_BIT*BITS_IN_BYTE - 1
 	bool IsBitPending(const uint8_t index)
 	{
 		BlockIndex = index / BITS_IN_BYTE;
