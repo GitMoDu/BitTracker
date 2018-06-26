@@ -127,7 +127,7 @@ public:
 
 	bool HasPending()
 	{
-		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
+		for (uint8_t i = 0; i < GetSizeInternal(); i++)
 		{
 			if (GetRawBlock(i) > 0)
 			{
