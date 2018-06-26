@@ -125,7 +125,15 @@ public:
 		return 0;
 	}
 
-	bool HasPending()
+	virtual void ClearAllPending()
+	{
+		for (uint8_t i = 0; i < GetSizeInternal(); i++)
+		{
+			GetRaw()[i] = 0;
+		}
+	}
+
+	virtual bool HasPending()
 	{
 		for (uint8_t i = 0; i < GetSizeInternal(); i++)
 		{
@@ -227,14 +235,6 @@ public:
 			Blocks[i] = 0xFF;
 		}
 	}
-
-	void ClearAllPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_16_BIT; i++)
-		{
-			Blocks[i] = 0;
-		}
-	}
 };
 
 class BitTracker32 : public AbstractBitTracker
@@ -277,14 +277,6 @@ public:
 		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
 		{
 			Blocks[i] = 0xFF;
-		}
-	}
-
-	void ClearAllPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
-		{
-			Blocks[i] = 0;
 		}
 	}
 };
@@ -331,26 +323,6 @@ public:
 			Blocks[i] = 0xFF;
 		}
 	}
-
-	void ClearAllPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_64_BIT; i++)
-		{
-			Blocks[i] = 0;
-		}
-	}
-
-	bool HasPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_64_BIT; i++)
-		{
-			if (Blocks[i] > 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
 };
 
 class BitTracker128 : public AbstractBitTracker
@@ -394,26 +366,6 @@ public:
 		{
 			Blocks[i] = 0xFF;
 		}
-	}
-
-	void ClearAllPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_128_BIT; i++)
-		{
-			Blocks[i] = 0;
-		}
-	}
-
-	bool HasPending()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_128_BIT; i++)
-		{
-			if (Blocks[i] > 0)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 };
 #endif
