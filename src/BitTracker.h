@@ -15,23 +15,22 @@ class IBitTracker
 {
 public:
 	virtual uint16_t GetBitCount() const;
-	virtual bool IsBitPending(const uint8_t index);
-	virtual bool HasPending();
-	virtual void SetBitPending(const uint8_t index);
-	virtual void ClearBitPending(const uint8_t index);
-	virtual void SetAllPending();
-	virtual void SetAllPendingForced();
-	virtual void ClearAllPending();
+	virtual bool IsBitSet(const uint8_t index);
+	virtual bool HasSet();
+	virtual void SetBit(const uint8_t index);
+	virtual void ClearBit(const uint8_t index);
+	virtual void SetAll();
+	virtual void ClearAll();
 	virtual uint16_t GetSize() const;
 	virtual uint8_t GetRawBlock(const uint8_t index = 0);
 	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0);
 
 public:
-	uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0)
+	uint8_t GetNextSetIndex(const uint8_t startingIndex = 0)
 	{
 		for (uint8_t i = startingIndex; i < GetSize(); i++)
 		{
-			if (IsBitPending(i))
+			if (IsBitSet(i))
 			{
 				return i;
 			}
@@ -47,7 +46,7 @@ private:
 	uint8_t Block = 0;
 
 private:
-	inline void SetBitPendingInternal(const uint8_t index)
+	inline void SetBitInternal(const uint8_t index)
 	{
 		Block |= (1 << index);
 	}
@@ -85,15 +84,15 @@ public:
 		}
 	}
 
-	void SetAllPending()
+	void SetAll()
 	{
 		for (uint8_t i = 0; i < GetBitCount(); i++)
 		{
-			SetBitPendingInternal(i);
+			SetBitInternal(i);
 		}
 	}
 
-	bool IsBitPending(const uint8_t index)
+	bool IsBitSet(const uint8_t index)
 	{
 		if (index < BitCount)
 		{
@@ -103,27 +102,22 @@ public:
 		return false;		
 	}
 
-	void SetBitPending(const uint8_t index)
+	void SetBit(const uint8_t index)
 	{
-		SetBitPendingInternal(index);
+		SetBitInternal(index);
 	}
 
-	void ClearBitPending(const uint8_t index)
+	void ClearBit(const uint8_t index)
 	{
 		Block &= ~(1 << index);
 	}
 
-	void SetAllPendingForced()
-	{
-		Block = 0xFF;
-	}
-
-	void ClearAllPending()
+	void ClearAll()
 	{
 		Block = 0;
 	}
 
-	bool HasPending()
+	bool HasSet()
 	{
 		return Block > 0;
 	}
@@ -139,7 +133,7 @@ private:
 	uint8_t Blocks[Size];
 
 private:
-	inline void SetBitPendingInternal(const uint8_t index)
+	inline void SetBitInternal(const uint8_t index)
 	{
 		Blocks[index / BITS_IN_BYTE] |= 1 << (index % BITS_IN_BYTE);
 	}
@@ -149,7 +143,7 @@ public:
 	{
 		for (uint16_t i = 0; i < GetBitCount(); i++)
 		{
-			ClearBitPending(i);
+			ClearBit(i);
 		}
 	}
 
@@ -171,19 +165,19 @@ public:
 		}
 	}
 
-	void SetAllPending()
+	void SetAll()
 	{
 		for (uint16_t i = 0; i < BitCount; i++)
 		{
-			SetBitPendingInternal(i);
+			SetBitInternal(i);
 		}
 	}
 
-	void SetBitPending(const uint8_t index)
+	void SetBit(const uint8_t index)
 	{
 		if (index < BitCount)
 		{
-			SetBitPendingInternal(index);
+			SetBitInternal(index);
 		}
 	}
 
@@ -197,7 +191,7 @@ public:
 		return 0;
 	}
 
-	void ClearAllPending()
+	void ClearAll()
 	{
 		for (uint8_t i = 0; i < Size; i++)
 		{
@@ -205,7 +199,7 @@ public:
 		}
 	}
 
-	bool HasPending()
+	bool HasSet()
 	{
 		for (uint8_t i = 0; i < Size; i++)
 		{
@@ -217,22 +211,14 @@ public:
 		return false;
 	}
 
-	bool IsBitPending(const uint8_t index)
+	bool IsBitSet(const uint8_t index)
 	{
 		return Blocks[index / BITS_IN_BYTE] & 1 << (index % BITS_IN_BYTE);
 	}
 
-	void ClearBitPending(const uint8_t index)
+	void ClearBit(const uint8_t index)
 	{
 		Blocks[index / BITS_IN_BYTE] &= ~(1 << (index % BITS_IN_BYTE));
-	}
-
-	void SetAllPendingForced()
-	{
-		for (uint8_t i = 0; i < Size; i++)
-		{
-			Blocks[i] = UINT8_MAX;
-		}
 	}
 };
 #endif

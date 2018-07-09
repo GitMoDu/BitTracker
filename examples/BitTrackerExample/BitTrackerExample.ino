@@ -61,11 +61,11 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 	Serial.println(F(" bits."));
 
 	Serial.print(F("Clear all: "));
-	bitTracker->ClearAllPending();
+	bitTracker->ClearAll();
 	OutputBitTrackerStatus(bitTracker, blockView);
 
-	Serial.print(F("Set all pending: "));
-	bitTracker->SetAllPending();
+	Serial.print(F("Set all: "));
+	bitTracker->SetAll();
 	OutputBitTrackerStatus(bitTracker, blockView);
 
 
@@ -80,7 +80,7 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 		Start = micros();
 		for (uint16_t i = 0; i < bitTracker->GetBitCount(); i++)
 		{
-			Executor += bitTracker->IsBitPending(i);
+			Executor += bitTracker->IsBitSet(i);
 		}
 		Elapsed = micros() - Start;
 		Sum += Elapsed;
@@ -99,7 +99,7 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 		Start = micros();
 		for (uint16_t i = 0; i < bitTracker->GetBitCount(); i++)
 		{
-			bitTracker->SetBitPending(i);
+			bitTracker->SetBit(i);
 		}
 		Elapsed = micros() - Start;
 		Sum += Elapsed;
@@ -112,13 +112,13 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 	Serial.println(F("Random clear walk..."));
 
 	OutputBitTrackerStatus(bitTracker, blockView);
-	while (bitTracker->HasPending())
+	while (bitTracker->HasSet())
 	{
 		uint16_t RandomIndex = random(bitTracker->GetBitCount());
 
-		if (bitTracker->IsBitPending(RandomIndex))
+		if (bitTracker->IsBitSet(RandomIndex))
 		{
-			bitTracker->ClearBitPending(RandomIndex);
+			bitTracker->ClearBit(RandomIndex);
 			OutputBitTrackerStatus(bitTracker, blockView);
 		}
 	}
@@ -149,7 +149,7 @@ void OutputBitTrackerStatus(IBitTracker * bitTracker, const bool blockView)
 		Serial.print('[');
 		for (uint16_t i = 0; i < MaximumBitCount; i++)
 		{
-			Serial.print(bitTracker->IsBitPending(i));
+			Serial.print(bitTracker->IsBitSet(i));
 			if (i < MaximumBitCount - 1)
 			{
 				Serial.print(' ');
