@@ -13,7 +13,7 @@ BitTracker8<7> Test8;
 TemplateBitTracker<16> Test16;
 TemplateBitTracker<30> Test32;
 TemplateBitTracker<63> Test64;
-TemplateBitTracker<1024> TestLarge;
+TemplateBitTracker<257> TestLarge;
 
 
 uint32_t Start, Elapsed;
@@ -38,13 +38,13 @@ void setup()
 	Serial.println(F("Bit Tracker Template 16"));
 	DebugBitTracker(&Test16, false);
 
-	Serial.println(F("Bit Tracker Template 32"));
+	Serial.println(F("Bit Tracker Template 30"));
 	DebugBitTracker(&Test32, true);
 
-	Serial.println(F("Bit Tracker Template 64"));
+	Serial.println(F("Bit Tracker Template 63"));
 	DebugBitTracker(&Test64, true);	
 
-	Serial.println(F("Bit Tracker Template 1024"));
+	Serial.println(F("Bit Tracker Template 257"));
 	DebugBitTracker(&TestLarge, true);
 
 	Serial.println();
@@ -54,7 +54,6 @@ void setup()
 
 void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 {
-	Serial.print(F("IBitTracker size: "));
 	Serial.print(bitTracker->GetSize());
 	Serial.print(F(" bytes for: "));
 	Serial.print(bitTracker->GetBitCount());
