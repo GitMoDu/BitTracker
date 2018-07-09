@@ -31,25 +31,33 @@ void setup()
 	randomSeed(analogRead(0));
 
 	Serial.println(F("Bit Tracker Example"));
+	Serial.println();
 
 	Serial.println(F("Bit Tracker 8 "));
+	Serial.println();
 	DebugBitTracker(&Test8, false);
 
+	Serial.println();
 	Serial.println(F("Bit Tracker Template 16"));
 	DebugBitTracker(&Test16, false);
 
 	Serial.println(F("Bit Tracker Template 30"));
+	Serial.println();
 	DebugBitTracker(&Test32, true);
 
 	Serial.println(F("Bit Tracker Template 63"));
+	Serial.println();
 	DebugBitTracker(&Test64, true);	
 
 	Serial.println(F("Bit Tracker Template 257"));
+	Serial.println();
 	DebugBitTracker(&TestLarge, true);
 
 	Serial.println();
+	Serial.println();
 
 	Serial.println(F("Bit Tracker Test Complete"));
+	Serial.println();
 }
 
 void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
@@ -58,6 +66,7 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 	Serial.print(F(" bytes for: "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.println(F(" bits."));
+	Serial.println();
 
 	Serial.print(F("Clear all: "));
 	bitTracker->ClearAll();
@@ -66,7 +75,6 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 	Serial.print(F("Set all: "));
 	bitTracker->SetAll();
 	OutputBitTrackerStatus(bitTracker, blockView);
-
 
 	Serial.print(F("Reading "));
 	Serial.print(bitTracker->GetBitCount());
@@ -87,6 +95,7 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 
 	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
 	Serial.println(F(" us per bit."));
+	Serial.println();
 
 
 	Serial.print(F("Writing "));
@@ -107,8 +116,10 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 
 	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
 	Serial.println(F(" us per bit."));
+	Serial.println();
 
 	Serial.println(F("Random clear walk..."));
+	Serial.println();
 
 	OutputBitTrackerStatus(bitTracker, blockView);
 	while (bitTracker->HasSet())
@@ -122,6 +133,7 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 		}
 	}
 	Serial.println(F("... done."));
+	Serial.println();
 
 	Serial.println();
 }
@@ -140,6 +152,7 @@ void OutputBitTrackerStatus(IBitTracker * bitTracker, const bool blockView)
 			}
 		}
 		Serial.println(']');
+		Serial.println();
 
 	}
 	else
@@ -155,6 +168,7 @@ void OutputBitTrackerStatus(IBitTracker * bitTracker, const bool blockView)
 			}
 		}
 		Serial.println(']');
+		Serial.println();
 	}
 }
 
