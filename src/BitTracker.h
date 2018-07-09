@@ -7,86 +7,26 @@
 
 #include <Arduino.h>
 
-#define BYTE_COUNT_8_BIT	1
-#define BYTE_COUNT_16_BIT	2
-#define BYTE_COUNT_32_BIT	4
-#define BYTE_COUNT_64_BIT	8
-#define BYTE_COUNT_128_BIT	16
+#include <stdint.h>
 
 #define BITS_IN_BYTE		8
 
 class IBitTracker
 {
-protected:
-	inline virtual void SetBitPendingInternal(const uint8_t index) {}
+public:
+	virtual uint16_t GetBitCount() const;
+	virtual bool IsBitPending(const uint8_t index);
+	virtual bool HasPending();
+	virtual void SetBitPending(const uint8_t index);
+	virtual void ClearBitPending(const uint8_t index);
+	virtual void SetAllPending();
+	virtual void SetAllPendingForced();
+	virtual void ClearAllPending();
+	virtual uint16_t GetSize() const;
+	virtual uint8_t GetRawBlock(const uint8_t index = 0);
+	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0);
 
 public:
-	virtual uint8_t GetBitCount() const { return 0; }
-	virtual bool IsBitPending(const uint8_t index) { return false; }
-	virtual bool HasPending() { return false; }
-	virtual void SetBitPending(const uint8_t index) {}
-	virtual void ClearBitPending(const uint8_t index) {}
-	virtual void SetAllPending() {}
-	virtual void SetAllPendingForced() {}
-	virtual void ClearAllPending() {}
-	virtual bool Initialize() { return false; }
-	virtual uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0) { return -1; }
-	virtual uint8_t GetSize() { return 0; }
-	virtual uint8_t GetRawBlock(const uint8_t index){return 0;}
-	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex) {}
-};
-
-class AbstractBitTracker : public IBitTracker
-{
-private:
-	uint8_t Size = 0;
-
-protected:
-	virtual uint8_t* GetRaw() { return nullptr; }
-	virtual uint8_t GetSizeInternal() const { return 0; }
-
-protected:
-	bool Initialize()
-	{
-		if (Size <= GetBitCount() && GetRaw() != nullptr)
-		{
-			for (uint8_t i = Size; i < GetBitCount(); i++)
-			{
-				ClearBitPending(i);
-			}
-
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-public:
-	AbstractBitTracker(const uint8_t size)
-	{
-		Size = size;
-	}
-
-	void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex)
-	{
-		if (blockIndex < GetSizeInternal())
-		{
-			GetRaw()[blockIndex] = blockValue;
-		}
-	}
-
-	uint8_t GetSize()
-	{
-		return Size;
-	}
-
-	uint8_t GetBitCount() const
-	{
-		return GetSizeInternal()*BITS_IN_BYTE;
-	}
-
 	uint8_t GetNextPendingIndex(const uint8_t startingIndex = 0)
 	{
 		for (uint8_t i = startingIndex; i < GetSize(); i++)
@@ -96,80 +36,76 @@ public:
 				return i;
 			}
 		}
+	}
+};
 
+//BitCount <= 8
+template <const uint16_t BitCount>
+class BitTracker8 : public IBitTracker
+{
+private:
+	uint8_t Block = 0;
+
+private:
+	inline void SetBitPendingInternal(const uint8_t index)
+	{
+		Block |= (1 << index);
+	}
+
+public:
+	BitTracker8() : IBitTracker()
+	{
+		Block = 0;
+	}
+
+	uint16_t GetSize() const
+	{
+		return 1;
+	}
+
+	uint16_t GetBitCount() const
+	{
+		return BitCount;
+	}
+
+	uint8_t GetRawBlock(const uint8_t blockIndex = 0)
+	{
+		if (blockIndex == 0)
+		{
+			return Block;
+		}
 		return 0;
+	}
+
+	void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0)
+	{
+		if (blockIndex == 0)
+		{
+			Block = blockValue;
+		}
 	}
 
 	void SetAllPending()
 	{
-		for (uint8_t i = 0; i < Size; i++)
+		for (uint8_t i = 0; i < GetBitCount(); i++)
 		{
 			SetBitPendingInternal(i);
 		}
 	}
 
-	void SetBitPending(const uint8_t index)
-	{
-		if (index < Size)
-		{
-			SetBitPendingInternal(index);
-		}
-	}
-
-	uint8_t GetRawBlock(const uint8_t blockIndex)
-	{
-		if (blockIndex < GetSizeInternal())
-		{
-			return GetRaw()[blockIndex];
-		}
-		return 0;
-	}
-
-	virtual void ClearAllPending()
-	{
-		for (uint8_t i = 0; i < GetSizeInternal(); i++)
-		{
-			GetRaw()[i] = 0;
-		}
-	}
-
-	virtual bool HasPending()
-	{
-		for (uint8_t i = 0; i < GetSizeInternal(); i++)
-		{
-			if (GetRawBlock(i) > 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-};
-
-class BitTracker8 : public AbstractBitTracker
-{
-private:
-	uint8_t Block = 0;
-
-protected:
-	uint8_t * GetRaw() { return &Block; }
-	uint8_t GetSizeInternal() const	{ return BYTE_COUNT_8_BIT; }
-
-public:
-	BitTracker8(const uint8_t size) : AbstractBitTracker(size)
-	{
-		Initialize();
-	}
-
-	//Input index should never be larger than BITS_IN_BYTE - 1
 	bool IsBitPending(const uint8_t index)
 	{
-		return Block & 1 << index;
+		if (index < BitCount)
+		{
+			return Block & 1 << index;
+		}
+		
+		return false;		
 	}
 
-	inline void SetBitPendingInternal(const uint8_t index)
+	void SetBitPending(const uint8_t index)
 	{
-		Block |= (1 << index);
+		SetBitPendingInternal(index);
 	}
 
 	void ClearBitPending(const uint8_t index)
@@ -193,178 +129,109 @@ public:
 	}
 };
 
-class BitTracker16 : public AbstractBitTracker
+//BitCount <= 255
+template <const uint16_t BitCount>
+class TemplateBitTracker : public IBitTracker
 {
 private:
-	uint8_t Blocks[BYTE_COUNT_16_BIT];
-	uint8_t BlockIndex;
+	static const uint8_t Size = (uint8_t)ceil((double)BitCount / (double)BITS_IN_BYTE);
 
-protected:
-	uint8_t * GetRaw() { return Blocks; }
-	uint8_t GetSizeInternal() const { return BYTE_COUNT_16_BIT; }
+	uint8_t Blocks[Size];
 
-public:
-	BitTracker16(const uint8_t size) : AbstractBitTracker(size)
-	{
-		Initialize();
-	}
-
-	//Input index should never be larger than BYTE_COUNT_16_BIT*BITS_IN_BYTE - 1
-	bool IsBitPending(const uint8_t index)
-	{
-		BlockIndex = index / BITS_IN_BYTE;
-		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
-	}
-
+private:
 	inline void SetBitPendingInternal(const uint8_t index)
 	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
+		Blocks[index / BITS_IN_BYTE] |= 1 << (index % BITS_IN_BYTE);
 	}
 
-	void ClearBitPending(const uint8_t index)
+public:
+	TemplateBitTracker()
 	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
-	}
-
-	void SetAllPendingForced()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_16_BIT; i++)
+		for (uint16_t i = 0; i < GetBitCount(); i++)
 		{
-			Blocks[i] = 0xFF;
+			ClearBitPending(i);
 		}
 	}
-};
 
-class BitTracker32 : public AbstractBitTracker
-{
-private:
-	uint8_t Blocks[BYTE_COUNT_32_BIT];
-	uint8_t BlockIndex;
-
-protected:
-	uint8_t * GetRaw() { return Blocks; }
-	uint8_t GetSizeInternal() const { return BYTE_COUNT_32_BIT; }
-
-public:
-	BitTracker32(const uint8_t size) : AbstractBitTracker(size)
+	uint16_t GetSize() const
 	{
-		Initialize();
+		return Size;
 	}
 
-	//Input index should never be larger than BYTE_COUNT_32_BIT*BITS_IN_BYTE - 1
-	bool IsBitPending(const uint8_t index)
+	uint16_t GetBitCount() const
 	{
-		BlockIndex = index / BITS_IN_BYTE;
-		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
+		return BitCount;
 	}
 
-	inline void SetBitPendingInternal(const uint8_t index)
+	void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex)
 	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
-	}
-
-	void ClearBitPending(const uint8_t index)
-	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
-	}
-
-	void SetAllPendingForced()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_32_BIT; i++)
+		if (blockIndex < Size)
 		{
-			Blocks[i] = 0xFF;
+			Blocks[blockIndex] = blockValue;
 		}
 	}
-};
 
-class BitTracker64 : public AbstractBitTracker
-{
-private:
-	uint8_t Blocks[BYTE_COUNT_64_BIT];
-	uint8_t BlockIndex;
-
-protected:
-	uint8_t * GetRaw() { return Blocks; }
-	uint8_t GetSizeInternal() const { return BYTE_COUNT_64_BIT; }
-
-public:
-	BitTracker64(const uint8_t size) : AbstractBitTracker(size)
+	void SetAllPending()
 	{
-		Initialize();
-	}
-
-	//Input index should never be larger than BYTE_COUNT_64_BIT*BITS_IN_BYTE - 1
-	bool IsBitPending(const uint8_t index)
-	{
-		BlockIndex = index / BITS_IN_BYTE;
-		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
-	}
-
-	inline void SetBitPendingInternal(const uint8_t index)
-	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
-	}
-
-	void ClearBitPending(const uint8_t index)
-	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
-	}
-
-	void SetAllPendingForced()
-	{
-		for (uint8_t i = 0; i < BYTE_COUNT_64_BIT; i++)
+		for (uint16_t i = 0; i < BitCount; i++)
 		{
-			Blocks[i] = 0xFF;
+			SetBitPendingInternal(i);
 		}
 	}
-};
 
-class BitTracker128 : public AbstractBitTracker
-{
-private:
-	uint8_t Blocks[BYTE_COUNT_128_BIT];
-	uint8_t BlockIndex;
-
-protected:
-	uint8_t * GetRaw() { return Blocks; }
-	uint8_t GetSizeInternal() const { return BYTE_COUNT_128_BIT; }
-
-public:
-	BitTracker128(const uint8_t size) : AbstractBitTracker(size)
+	void SetBitPending(const uint8_t index)
 	{
-		Initialize();
+		if (index < BitCount)
+		{
+			SetBitPendingInternal(index);
+		}
 	}
 
-	//Input index should never be larger than BYTE_COUNT_128_BIT*BITS_IN_BYTE - 1
+	uint8_t GetRawBlock(const uint8_t blockIndex)
+	{
+		if (blockIndex < Size)
+		{
+			return Blocks[blockIndex];
+		}
+
+		return 0;
+	}
+
+	void ClearAllPending()
+	{
+		for (uint8_t i = 0; i < Size; i++)
+		{
+			Blocks[i] = 0;
+		}
+	}
+
+	bool HasPending()
+	{
+		for (uint8_t i = 0; i < Size; i++)
+		{
+			if (GetRawBlock(i) > 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	bool IsBitPending(const uint8_t index)
 	{
-		BlockIndex = index / BITS_IN_BYTE;
-		return Blocks[BlockIndex] & 1 << (index % BITS_IN_BYTE);
-	}
-
-	inline void SetBitPendingInternal(const uint8_t index)
-	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] |= 1 << (index % BITS_IN_BYTE);
+		return Blocks[index / BITS_IN_BYTE] & 1 << (index % BITS_IN_BYTE);
 	}
 
 	void ClearBitPending(const uint8_t index)
 	{
-		BlockIndex = index / BITS_IN_BYTE;
-		Blocks[BlockIndex] &= ~(1 << (index % BITS_IN_BYTE));
+		Blocks[index / BITS_IN_BYTE] &= ~(1 << (index % BITS_IN_BYTE));
 	}
 
 	void SetAllPendingForced()
 	{
-		for (uint8_t i = 0; i < BYTE_COUNT_128_BIT; i++)
+		for (uint8_t i = 0; i < Size; i++)
 		{
-			Blocks[i] = 0xFF;
+			Blocks[i] = UINT8_MAX;
 		}
 	}
 };

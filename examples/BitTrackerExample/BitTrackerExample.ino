@@ -3,16 +3,17 @@
 #include <BitTracker.h>
 #include <HardwareSerial.h>
 
-#define SERIAL_BAUD_RATE 57600
+#define SERIAL_BAUD_RATE 115200
 
 
-#define TEST_SIZE 200
+#define TEST_SIZE 50
 
-BitTracker8 Test8(8);
-BitTracker16 Test16(16);
-BitTracker32 Test32(32);
-BitTracker64 Test64(64);
-BitTracker128 TestSmallOnLarge(10);
+
+BitTracker8<7> Test8;
+TemplateBitTracker<16> Test16;
+TemplateBitTracker<30> Test32;
+TemplateBitTracker<63> Test64;
+TemplateBitTracker<1024> TestLarge;
 
 
 uint32_t Start, Elapsed;
@@ -25,67 +26,78 @@ void setup()
 	while (!Serial)
 		;
 
+	delay(1000);
+
 	randomSeed(analogRead(0));
 
 	Serial.println(F("Bit Tracker Example"));
 
 	Serial.println(F("Bit Tracker 8 "));
-	DebugBitTracker(&Test8);
+	DebugBitTracker(&Test8, false);
 
-	Serial.println(F("Bit Tracker 16"));
-	DebugBitTracker(&Test16);
+	Serial.println(F("Bit Tracker Template 16"));
+	DebugBitTracker(&Test16, false);
 
-	Serial.println(F("Bit Tracker 32"));
-	DebugBitTracker(&Test32);
+	Serial.println(F("Bit Tracker Template 32"));
+	DebugBitTracker(&Test32, true);
 
-	Serial.println(F("Bit Tracker 64"));
-	DebugBitTracker(&Test64);	
+	Serial.println(F("Bit Tracker Template 64"));
+	DebugBitTracker(&Test64, true);	
 
-	Serial.println(F("Bit Tracker 128 with only 10 used bits"));
-	DebugBitTracker(&TestSmallOnLarge);
+	Serial.println(F("Bit Tracker Template 1024"));
+	DebugBitTracker(&TestLarge, true);
 
 	Serial.println();
 
 	Serial.println(F("Bit Tracker Test Complete"));
 }
 
-void DebugBitTracker(IBitTracker * bitTracker)
+void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 {
-	bool Grunt = false;
+	Serial.print(F("IBitTracker size: "));
+	Serial.print(bitTracker->GetSize());
+	Serial.print(F(" bytes for: "));
+	Serial.print(bitTracker->GetBitCount());
+	Serial.println(F(" bits."));
+
 	Serial.print(F("Clear all: "));
 	bitTracker->ClearAllPending();
-	OutputBitTrackerStatus(bitTracker);
+	OutputBitTrackerStatus(bitTracker, blockView);
 
 	Serial.print(F("Set all pending: "));
 	bitTracker->SetAllPending();
-	OutputBitTrackerStatus(bitTracker);
+	OutputBitTrackerStatus(bitTracker, blockView);
 
+
+	Serial.print(F("Reading "));
+	Serial.print(bitTracker->GetBitCount());
+	Serial.print(F(" bits took "));
+
+	uint8_t Executor = 0;
 	Sum = 0;
 	for (uint16_t j = 0; j < TEST_SIZE; j++)
 	{
 		Start = micros();
-		for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
+		for (uint16_t i = 0; i < bitTracker->GetBitCount(); i++)
 		{
-			Grunt = bitTracker->IsBitPending(i);
+			Executor += bitTracker->IsBitPending(i);
 		}
 		Elapsed = micros() - Start;
 		Sum += Elapsed;
 	}
 
-
-	bool NoIgnorePlz = Grunt && bitTracker->GetBitCount() > 0;
-
-	Serial.print(F("Reading "));
-	Serial.print(bitTracker->GetBitCount());
-	Serial.print(F(" bits took "));
 	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
 	Serial.println(F(" us per bit."));
 
+
+	Serial.print(F("Writing "));
+	Serial.print(bitTracker->GetBitCount());
+	Serial.print(F(" bits took "));
 	Sum = 0;
 	for (uint16_t j = 0; j < TEST_SIZE; j++)
 	{
 		Start = micros();
-		for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
+		for (uint16_t i = 0; i < bitTracker->GetBitCount(); i++)
 		{
 			bitTracker->SetBitPending(i);
 		}
@@ -93,23 +105,21 @@ void DebugBitTracker(IBitTracker * bitTracker)
 		Sum += Elapsed;
 	}
 
-	Serial.print(F("Writing "));
-	Serial.print(bitTracker->GetBitCount());
-	Serial.print(F(" bits took "));
+
 	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
 	Serial.println(F(" us per bit."));
 
 	Serial.println(F("Random clear walk..."));
 
-	OutputBitTrackerStatus(bitTracker);
+	OutputBitTrackerStatus(bitTracker, blockView);
 	while (bitTracker->HasPending())
 	{
-		uint8_t RandomIndex = random(bitTracker->GetBitCount());
+		uint16_t RandomIndex = random(bitTracker->GetBitCount());
 
 		if (bitTracker->IsBitPending(RandomIndex))
 		{
 			bitTracker->ClearBitPending(RandomIndex);
-			OutputBitTrackerStatus(bitTracker);
+			OutputBitTrackerStatus(bitTracker, blockView);
 		}
 	}
 	Serial.println(F("... done."));
@@ -117,18 +127,36 @@ void DebugBitTracker(IBitTracker * bitTracker)
 	Serial.println();
 }
 
-void OutputBitTrackerStatus(IBitTracker * bitTracker)
+void OutputBitTrackerStatus(IBitTracker * bitTracker, const bool blockView)
 {
-	Serial.print('[');
-	for (uint8_t i = 0; i < bitTracker->GetBitCount(); i++)
+	if (blockView)
 	{
-		Serial.print(bitTracker->IsBitPending(i));
-		if (i < bitTracker->GetBitCount() - 1)
+		Serial.print('[');
+		for (uint16_t i = 0; i < bitTracker->GetSize(); i++)
 		{
-			Serial.print(' ');
+			Serial.print(bitTracker->GetRawBlock(i) > 0);
+			if (i < bitTracker->GetSize() - 1)
+			{
+				Serial.print(' ');
+			}
 		}
+		Serial.println(']');
+
 	}
-	Serial.println(']');
+	else
+	{
+		uint16_t MaximumBitCount = bitTracker->GetSize() * BITS_IN_BYTE;
+		Serial.print('[');
+		for (uint16_t i = 0; i < MaximumBitCount; i++)
+		{
+			Serial.print(bitTracker->IsBitPending(i));
+			if (i < MaximumBitCount - 1)
+			{
+				Serial.print(' ');
+			}
+		}
+		Serial.println(']');
+	}
 }
 
 void loop()
