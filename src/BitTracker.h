@@ -35,6 +35,8 @@ public:
 				return i;
 			}
 		}
+
+		return 0;
 	}
 
 	void ReplaceBit(const uint8_t index, const bool value)
