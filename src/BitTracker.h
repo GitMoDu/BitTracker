@@ -36,6 +36,18 @@ public:
 			}
 		}
 	}
+
+	void ReplaceBit(const uint8_t index, const bool value)
+	{
+		if (value)
+		{
+			SetBit(index);
+		}
+		else
+		{
+			ClearBit(index);
+		}
+	}
 };
 
 //BitCount <= 8
