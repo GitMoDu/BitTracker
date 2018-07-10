@@ -47,7 +47,7 @@ void setup()
 
 	Serial.println(F("Bit Tracker Template 63"));
 	Serial.println();
-	DebugBitTracker(&Test64, true);	
+	DebugBitTracker(&Test64, true);
 
 	Serial.println(F("Bit Tracker Template 257"));
 	Serial.println();
@@ -124,13 +124,37 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 	OutputBitTrackerStatus(bitTracker, blockView);
 	while (bitTracker->HasSet())
 	{
-		uint16_t RandomIndex = random(bitTracker->GetBitCount());
+		uint16_t RandomIndex;
 
-		if (bitTracker->IsBitSet(RandomIndex))
+		if (blockView)
 		{
-			bitTracker->ClearBit(RandomIndex);
-			OutputBitTrackerStatus(bitTracker, blockView);
+			RandomIndex = random(bitTracker->GetSize());
+
+			bool BlockClear = true;
+			for (uint8_t i = 0; i < bitTracker->GetBitCount() && BlockClear; i++)
+			{
+				if (bitTracker->IsBitSet(RandomIndex + i))
+				{
+					BlockClear = false;
+				}
+			}
+
+			if (!BlockClear)
+			{
+				bitTracker->OverrideBlock(0, RandomIndex);
+				OutputBitTrackerStatus(bitTracker, blockView);
+			}			
 		}
+		else
+		{
+			RandomIndex = random(bitTracker->GetBitCount());
+			if (bitTracker->IsBitSet(RandomIndex))
+			{
+				bitTracker->ClearBit(RandomIndex);
+				OutputBitTrackerStatus(bitTracker, blockView);
+			}
+		}
+
 	}
 	Serial.println(F("... done."));
 	Serial.println();
@@ -140,36 +164,42 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 
 void OutputBitTrackerStatus(IBitTracker * bitTracker, const bool blockView)
 {
+	uint16_t Size;
 	if (blockView)
 	{
-		Serial.print('[');
-		for (uint16_t i = 0; i < bitTracker->GetSize(); i++)
-		{
-			Serial.print(bitTracker->GetRawBlock(i) > 0);
-			if (i < bitTracker->GetSize() - 1)
-			{
-				Serial.print(' ');
-			}
-		}
-		Serial.println(']');
-		Serial.println();
-
+		Size = bitTracker->GetSize();
 	}
 	else
 	{
-		uint16_t MaximumBitCount = bitTracker->GetSize() * BITS_IN_BYTE;
-		Serial.print('[');
-		for (uint16_t i = 0; i < MaximumBitCount; i++)
+		Size = bitTracker->GetSize() * BITS_IN_BYTE;
+	}
+
+	Serial.print('[');
+	for (uint16_t i = 0; i < Size; i++)
+	{
+		if (blockView)
 		{
-			Serial.print(bitTracker->IsBitSet(i));
-			if (i < MaximumBitCount - 1)
+			if (bitTracker->GetRawBlock(i) > 0)
 			{
-				Serial.print(' ');
+				Serial.print('#');
+			}
+			else
+			{
+				Serial.print('_');
 			}
 		}
-		Serial.println(']');
-		Serial.println();
+		else
+		{
+			Serial.print(bitTracker->IsBitSet(i) > 0);
+		}
+
+		if (i < Size - 1)
+		{
+			Serial.print(' ');
+		}
 	}
+	Serial.println(']');
+	Serial.println();
 }
 
 void loop()
