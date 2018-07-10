@@ -9,7 +9,7 @@
 #define TEST_SIZE 50
 
 
-BitTracker8<7> Test8;
+TemplateBitTracker<7> Test8;
 TemplateBitTracker<16> Test16;
 TemplateBitTracker<30> Test32;
 TemplateBitTracker<63> Test64;
