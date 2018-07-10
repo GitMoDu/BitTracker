@@ -15,20 +15,20 @@ class IBitTracker
 {
 public:
 	virtual uint16_t GetBitCount() const;
-	virtual bool IsBitSet(const uint8_t index);
+	virtual bool IsBitSet(const uint16_t index);
 	virtual bool HasSet();
-	virtual void SetBit(const uint8_t index);
-	virtual void ClearBit(const uint8_t index);
+	virtual void SetBit(const uint16_t index);
+	virtual void ClearBit(const uint16_t index);
 	virtual void SetAll();
 	virtual void ClearAll();
 	virtual uint16_t GetSize() const;
-	virtual uint8_t GetRawBlock(const uint8_t index = 0);
+	virtual uint8_t GetRawBlock(const uint8_t blockIndex = 0);
 	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0);
 
 public:
-	uint8_t GetNextSetIndex(const uint8_t startingIndex = 0)
+	uint16_t GetNextSetIndex(const uint16_t startingIndex = 0)
 	{
-		for (uint8_t i = startingIndex; i < GetSize(); i++)
+		for (uint16_t i = startingIndex; i < GetSize(); i++)
 		{
 			if (IsBitSet(i))
 			{
@@ -147,7 +147,7 @@ private:
 	uint8_t Blocks[Size];
 
 private:
-	inline void SetBitInternal(const uint8_t index)
+	inline void SetBitInternal(const uint16_t index)
 	{
 		Blocks[index / BITS_IN_BYTE] |= 1 << (index % BITS_IN_BYTE);
 	}
@@ -171,7 +171,7 @@ public:
 		return BitCount;
 	}
 
-	void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex)
+	void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0)
 	{
 		if (blockIndex < Size)
 		{
@@ -187,7 +187,7 @@ public:
 		}
 	}
 
-	void SetBit(const uint8_t index)
+	void SetBit(const uint16_t index)
 	{
 		if (index < BitCount)
 		{
@@ -195,7 +195,7 @@ public:
 		}
 	}
 
-	uint8_t GetRawBlock(const uint8_t blockIndex)
+	uint8_t GetRawBlock(const uint8_t blockIndex = 0)
 	{
 		if (blockIndex < Size)
 		{
@@ -225,12 +225,12 @@ public:
 		return false;
 	}
 
-	bool IsBitSet(const uint8_t index)
+	bool IsBitSet(const uint16_t index)
 	{
 		return Blocks[index / BITS_IN_BYTE] & 1 << (index % BITS_IN_BYTE);
 	}
 
-	void ClearBit(const uint8_t index)
+	void ClearBit(const uint16_t index)
 	{
 		Blocks[index / BITS_IN_BYTE] &= ~(1 << (index % BITS_IN_BYTE));
 	}
