@@ -217,7 +217,7 @@ public:
 	{
 		for (uint8_t i = 0; i < Size; i++)
 		{
-			if (GetRawBlock(i) > 0)
+			if (Blocks[i] > 0)
 			{
 				return true;
 			}
