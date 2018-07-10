@@ -28,8 +28,6 @@ void setup()
 
 	delay(1000);
 
-	randomSeed(analogRead(0));
-
 	Serial.println(F("Bit Tracker Example"));
 	Serial.println();
 
@@ -62,12 +60,6 @@ void setup()
 
 void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 {
-	Serial.print(bitTracker->GetSize());
-	Serial.print(F(" bytes for: "));
-	Serial.print(bitTracker->GetBitCount());
-	Serial.println(F(" bits."));
-	Serial.println();
-
 	Serial.print(F("Clear all: "));
 	bitTracker->ClearAll();
 	OutputBitTrackerStatus(bitTracker, blockView);
@@ -118,22 +110,27 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 	Serial.println(F(" us per bit."));
 	Serial.println();
 
-	Serial.println(F("Random clear walk..."));
+	Serial.println(F("Linear clear walk..."));
+	Serial.println();
+
+	Serial.print(bitTracker->GetSize());
+	Serial.print(F(" bytes for: "));
+	Serial.print(bitTracker->GetBitCount());
+	Serial.println(F(" bits."));
 	Serial.println();
 
 	OutputBitTrackerStatus(bitTracker, blockView);
+
+	uint16_t ClearIndex = 0;
+
 	while (bitTracker->HasSet())
 	{
-		uint16_t RandomIndex;
-
 		if (blockView)
 		{
-			RandomIndex = random(bitTracker->GetSize());
-
 			bool BlockClear = true;
 			for (uint8_t i = 0; i < bitTracker->GetBitCount() && BlockClear; i++)
 			{
-				if (bitTracker->IsBitSet(RandomIndex + i))
+				if (bitTracker->IsBitSet(ClearIndex + i))
 				{
 					BlockClear = false;
 				}
@@ -141,20 +138,19 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 
 			if (!BlockClear)
 			{
-				bitTracker->OverrideBlock(0, RandomIndex);
+				bitTracker->OverrideBlock(0, ClearIndex);
 				OutputBitTrackerStatus(bitTracker, blockView);
 			}			
 		}
 		else
 		{
-			RandomIndex = random(bitTracker->GetBitCount());
-			if (bitTracker->IsBitSet(RandomIndex))
+			if (bitTracker->IsBitSet(ClearIndex))
 			{
-				bitTracker->ClearBit(RandomIndex);
+				bitTracker->ClearBit(ClearIndex);
 				OutputBitTrackerStatus(bitTracker, blockView);
 			}
 		}
-
+		ClearIndex++;
 	}
 	Serial.println(F("... done."));
 	Serial.println();
