@@ -28,7 +28,7 @@ public:
 public:
 	uint16_t GetNextSetIndex(const uint16_t startingIndex = 0)
 	{
-		for (uint16_t i = startingIndex; i < GetSize(); i++)
+		for (uint16_t i = startingIndex; i < GetBitCount(); i++)
 		{
 			if (IsBitSet(i))
 			{
