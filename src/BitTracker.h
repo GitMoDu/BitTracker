@@ -1,6 +1,5 @@
 // BitTracker.h
-// Provides a way of storing the binary state of up to 128 values,
-// marking if they need to be updated.
+// Provides a way of storing and retrieving the binary state of up to UINT16_MAX values,
 
 #ifndef _BITTRACKER_h
 #define _BITTRACKER_h
@@ -52,7 +51,7 @@ public:
 	}
 };
 
-//BitCount <= 255
+//BitCount <= 65535
 template <const uint16_t BitCount>
 class TemplateBitTracker : public IBitTracker
 {
