@@ -1,6 +1,8 @@
 ## BitTracker
 Bit wise, memory efficient tracker.
 
+Pack your indivdual bits as tightly as possible in a byte array, abstracted by the IBitTracker interface, and constructed using the templated class BitTracker.
+
 Bit Tracker Example
 
 Bit Tracker 8 
