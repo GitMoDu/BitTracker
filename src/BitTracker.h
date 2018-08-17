@@ -25,7 +25,7 @@ public:
 	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0);
 
 public:
-	bool MergeSet(const IBitTracker &tracker)
+	bool MergeSet(IBitTracker &tracker)
 	{
 		if (GetBitCount() == tracker.GetBitCount())
 		{
@@ -39,7 +39,7 @@ public:
 		return false;
 	}
 
-	bool MergeClear(const IBitTracker &tracker)
+	bool MergeClear(IBitTracker &tracker)
 	{
 		if (GetBitCount() == tracker.GetBitCount())
 		{
