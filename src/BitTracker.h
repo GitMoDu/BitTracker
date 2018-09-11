@@ -25,13 +25,27 @@ public:
 	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0);
 
 public:
-	bool MergeSet(IBitTracker &tracker)
+	bool MergeBits(IBitTracker* tracker)
 	{
-		if (GetBitCount() == tracker.GetBitCount())
+		if (GetBitCount() == tracker->GetBitCount())
 		{
-			for (uint8_t i = 0; i < tracker.GetSize(); i++)
+			for (uint8_t i = 0; i < tracker->GetSize(); i++)
 			{
-				OverrideBlock(GetRawBlock(i) | tracker.GetRawBlock(i), i);
+				OverrideBlock(GetRawBlock(i) | tracker->GetRawBlock(i), i);
+			}
+
+			return true;
+		}
+		return false;
+	}
+
+	bool ReplaceBits(IBitTracker* tracker)
+	{
+		if (GetBitCount() == tracker->GetBitCount())
+		{
+			for (uint8_t i = 0; i < tracker->GetSize(); i++)
+			{
+				OverrideBlock(tracker->GetRawBlock(i), i);
 			}
 
 			return true;
