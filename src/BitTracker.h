@@ -4,8 +4,6 @@
 #ifndef _BITTRACKER_h
 #define _BITTRACKER_h
 
-#include <Arduino.h>
-
 #include <stdint.h>
 
 #define BITS_IN_BYTE		8
