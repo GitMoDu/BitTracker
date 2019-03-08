@@ -27,7 +27,7 @@ public:
 	{
 		if (GetBitCount() == tracker->GetBitCount())
 		{
-			for (uint8_t i = 0; i < tracker->GetSize(); i++)
+			for (uint16_t i = 0; i < tracker->GetSize(); i++)
 			{
 				OverrideBlock(GetRawBlock(i) | tracker->GetRawBlock(i), i);
 			}
@@ -41,7 +41,7 @@ public:
 	{
 		if (GetBitCount() == tracker->GetBitCount())
 		{
-			for (uint8_t i = 0; i < tracker->GetSize(); i++)
+			for (uint16_t i = 0; i < tracker->GetSize(); i++)
 			{
 				OverrideBlock(tracker->GetRawBlock(i), i);
 			}
@@ -55,7 +55,7 @@ public:
 	{
 		if (GetBitCount() == tracker.GetBitCount())
 		{
-			for (uint8_t i = 0; i < tracker.GetSize(); i++)
+			for (uint16_t i = 0; i < tracker.GetSize(); i++)
 			{				
 				OverrideBlock(GetRawBlock(i) & ~tracker.GetRawBlock(i), i);
 			}
@@ -125,7 +125,7 @@ public:
 		return BitCount;
 	}
 
-	void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0)
+	void OverrideBlock(const uint8_t blockValue, const uint16_t blockIndex = 0)
 	{
 		if (blockIndex < Size)
 		{
@@ -149,7 +149,7 @@ public:
 		}
 	}
 
-	uint8_t GetRawBlock(const uint8_t blockIndex = 0)
+	uint8_t GetRawBlock(const uint16_t blockIndex = 0)
 	{
 		if (blockIndex < Size)
 		{
