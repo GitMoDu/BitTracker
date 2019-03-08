@@ -1,24 +1,28 @@
 
 
 #include <BitTracker.h>
-#include <HardwareSerial.h>
 
-#define SERIAL_BAUD_RATE 115200
+#define SERIAL_BAUD_RATE 500000
 
-
-#define TEST_SIZE 50
+//#define TEST_MAX_SIZE
 
 
-TemplateBitTracker<7> Test8;
+#define TEST_SIZE 5
+
+TemplateBitTracker<1> TestMin;
+TemplateBitTracker<7> Test7;
 TemplateBitTracker<16> Test16;
-TemplateBitTracker<30> Test32;
-TemplateBitTracker<63> Test64;
-TemplateBitTracker<257> TestLarge;
+TemplateBitTracker<33> Test33;
+TemplateBitTracker<257> Test257;
+
+#ifdef TEST_MAX_SIZE
+TemplateBitTracker<UINT16_MAX> TestMax;
+#endif
+
 
 
 uint32_t Start, Elapsed;
 uint8_t CallCounter;
-uint32_t Sum;
 
 void setup()
 {
@@ -31,25 +35,34 @@ void setup()
 	Serial.println(F("Bit Tracker Example"));
 	Serial.println();
 
-	Serial.println(F("Bit Tracker 8 "));
+	Serial.println(F("Bit Tracker Template 1"));
 	Serial.println();
-	DebugBitTracker(&Test8, false);
+	DebugBitTracker(&TestMin, false);
+
+	Serial.println(F("Bit Tracker Template 7 "));
+	Serial.println();
+	DebugBitTracker(&Test7, false);
 
 	Serial.println();
 	Serial.println(F("Bit Tracker Template 16"));
 	DebugBitTracker(&Test16, false);
 
-	Serial.println(F("Bit Tracker Template 30"));
+	Serial.println(F("Bit Tracker Template 33"));
 	Serial.println();
-	DebugBitTracker(&Test32, true);
-
-	Serial.println(F("Bit Tracker Template 63"));
-	Serial.println();
-	DebugBitTracker(&Test64, true);
+	DebugBitTracker(&Test33, true);
 
 	Serial.println(F("Bit Tracker Template 257"));
 	Serial.println();
-	DebugBitTracker(&TestLarge, true);
+	DebugBitTracker(&Test257, true);
+
+
+#ifdef TEST_MAX_SIZE
+	Serial.println(F("Bit Tracker Template Max"));
+	Serial.println();
+	DebugBitTracker(&TestMax, true);
+	TemplateBitTracker<UINT16_MAX> TestMax;
+#endif
+
 
 	Serial.println();
 	Serial.println();
@@ -73,41 +86,38 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 	Serial.print(F(" bits took "));
 
 	uint8_t Executor = 0;
-	Sum = 0;
+
+	Start = micros();
 	for (uint16_t j = 0; j < TEST_SIZE; j++)
 	{
-		Start = micros();
 		for (uint16_t i = 0; i < bitTracker->GetBitCount(); i++)
 		{
 			Executor += bitTracker->IsBitSet(i);
 		}
-		Elapsed = micros() - Start;
-		Sum += Elapsed;
 	}
+	Elapsed = micros()*1000 - Start*1000;
 
-	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
-	Serial.println(F(" us per bit."));
+	Serial.print(Elapsed / (bitTracker->GetBitCount()*TEST_SIZE));
+	Serial.println(F(" ns per bit."));
 	Serial.println();
 
 
 	Serial.print(F("Writing "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.print(F(" bits took "));
-	Sum = 0;
+
+	Start = micros();
 	for (uint16_t j = 0; j < TEST_SIZE; j++)
 	{
-		Start = micros();
 		for (uint16_t i = 0; i < bitTracker->GetBitCount(); i++)
 		{
 			bitTracker->SetBit(i);
 		}
-		Elapsed = micros() - Start;
-		Sum += Elapsed;
 	}
+	Elapsed = micros()*1000 - Start*1000;
 
-
-	Serial.print(Sum / (bitTracker->GetBitCount()*TEST_SIZE));
-	Serial.println(F(" us per bit."));
+	Serial.print(Elapsed / (bitTracker->GetBitCount()*TEST_SIZE));
+	Serial.println(F(" ns per bit."));
 	Serial.println();
 
 	Serial.println(F("Linear clear walk..."));
@@ -128,7 +138,7 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 		if (blockView)
 		{
 			bool BlockClear = true;
-			for (uint8_t i = 0; i < bitTracker->GetBitCount() && BlockClear; i++)
+			for (uint16_t i = 0; (i < bitTracker->GetBitCount()) && BlockClear; i++)
 			{
 				if (bitTracker->IsBitSet(ClearIndex + i))
 				{
@@ -139,8 +149,9 @@ void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 			if (!BlockClear)
 			{
 				bitTracker->OverrideBlock(0, ClearIndex);
-				OutputBitTrackerStatus(bitTracker, blockView);
-			}			
+				if(bitTracker->GetSize() < 100)
+					OutputBitTrackerStatus(bitTracker, blockView);
+			}
 		}
 		else
 		{
