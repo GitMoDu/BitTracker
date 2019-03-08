@@ -21,8 +21,8 @@ public:
 	virtual void SetAll();
 	virtual void ClearAll();
 	virtual uint16_t GetSize() const;
-	virtual uint8_t GetRawBlock(const uint8_t blockIndex = 0);
-	virtual void OverrideBlock(const uint8_t blockValue, const uint8_t blockIndex = 0);
+	virtual uint8_t GetRawBlock(const uint16_t blockIndex = 0);
+	virtual void OverrideBlock(const uint8_t blockValue, const uint16_t blockIndex = 0);
 
 public:
 	bool MergeBits(IBitTracker* tracker)
@@ -80,7 +80,7 @@ public:
 		return 0;
 	}
 
-	void ReplaceBit(const uint8_t index, const bool value)
+	void ReplaceBit(const uint16_t index, const bool value)
 	{
 		if (value)
 		{
@@ -98,7 +98,7 @@ template <const uint16_t BitCount>
 class TemplateBitTracker : public IBitTracker
 {
 private:
-	static const uint8_t Size = (uint8_t)ceil((double)BitCount / (double)BITS_IN_BYTE);
+	static const uint16_t Size = (uint8_t)ceil((double)BitCount / (double)BITS_IN_BYTE);
 
 	uint8_t Blocks[Size];
 
@@ -163,7 +163,7 @@ public:
 
 	void ClearAll()
 	{
-		for (uint8_t i = 0; i < Size; i++)
+		for (uint16_t i = 0; i < Size; i++)
 		{
 			Blocks[i] = 0;
 		}
@@ -171,7 +171,7 @@ public:
 
 	bool HasSet()
 	{
-		for (uint8_t i = 0; i < Size; i++)
+		for (uint16_t i = 0; i < Size; i++)
 		{
 			if (Blocks[i] > 0)
 			{
