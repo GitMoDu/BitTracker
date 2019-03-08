@@ -96,7 +96,7 @@ template <const uint16_t BitCount>
 class TemplateBitTracker : public IBitTracker
 {
 private:
-	static const uint16_t Size = (uint8_t)ceil((double)BitCount / (double)BITS_IN_BYTE);
+	static const uint16_t Size = (BitCount / BITS_IN_BYTE) + (BitCount % BITS_IN_BYTE > 0);
 
 	uint8_t Blocks[Size];
 
