@@ -15,6 +15,10 @@ TemplateBitTracker<16> Test16;
 TemplateBitTracker<33> Test33;
 TemplateBitTracker<257> Test257;
 
+uint8_t External[32];
+
+TemplateExternalBitTracker<32> Test32External(External);
+
 #ifdef TEST_MAX_SIZE
 TemplateBitTracker<UINT16_MAX> TestMax;
 #endif
@@ -55,6 +59,11 @@ void setup()
 	Serial.println();
 	DebugBitTracker(&Test257, true);
 
+	Serial.println(F("Bit Tracker Template 32 External"));
+	Serial.println();
+	DebugExternalBitTracker(&Test32External, false);
+
+
 
 #ifdef TEST_MAX_SIZE
 	Serial.println(F("Bit Tracker Template Max"));
@@ -71,6 +80,21 @@ void setup()
 	Serial.println();
 }
 
+void DebugExternalBitTracker(IBitTracker* bitTracker, const bool blockView)
+{
+	Serial.print(F("Clear all: "));
+	bitTracker->ClearAll();
+	OutputBitTrackerStatus(bitTracker, blockView);
+
+	Serial.print(F("Set all externally: "));
+	External[0] = UINT8_MAX;
+	External[1] = UINT8_MAX;
+	External[2] = UINT8_MAX;
+	External[3] = UINT8_MAX;
+	OutputBitTrackerStatus(bitTracker, blockView);
+
+	DebugBitTracker(bitTracker, blockView);
+}
 void DebugBitTracker(IBitTracker * bitTracker, const bool blockView)
 {
 	Serial.print(F("Clear all: "));
