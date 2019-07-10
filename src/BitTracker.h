@@ -97,12 +97,16 @@ public:
 
 //BitCount <= 65535
 template <const uint16_t BitCount>
-class TemplateBitTracker : public IBitTracker
+class BaseTemplateBitTracker : public IBitTracker
 {
-private:
-	static const uint16_t Size = (BitCount / BITS_IN_BYTE) + (BitCount % BITS_IN_BYTE > 0);
+protected:
+	uint8_t* Blocks;
 
-	uint8_t Blocks[Size];
+protected:
+	void SetBlocksSource(uint8_t* blocks)
+	{
+		Blocks = blocks;
+	}
 
 private:
 	inline void SetBitInternal(const uint16_t index)
@@ -111,7 +115,7 @@ private:
 	}
 
 public:
-	TemplateBitTracker()
+	BaseTemplateBitTracker() : IBitTracker()
 	{
 		for (uint16_t i = 0; i < GetBitCount(); i++)
 		{
@@ -208,4 +212,19 @@ public:
 		Blocks[index / BITS_IN_BYTE] &= ~(1 << (index % BITS_IN_BYTE));
 	}
 };
+
+//BitCount <= 65535
+template <const uint16_t BitCount>
+class TemplateBitTracker : public BaseTemplateBitTracker<BitCount>
+{
+private:
+	uint8_t BlocksData[BYTES_NEEDED_PER_BIT_COUNT(BitCount)];
+
+public:
+	TemplateBitTracker() : BaseTemplateBitTracker<BitCount>()
+	{
+		BaseTemplateBitTracker<BitCount>::SetBlocksSource(BlocksData);
+	}	
+};
+
 #endif
