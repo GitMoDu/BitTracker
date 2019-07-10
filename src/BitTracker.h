@@ -8,6 +8,10 @@
 
 #define BITS_IN_BYTE		8
 
+
+#define BYTES_NEEDED_PER_BIT_COUNT(bitCount) ((bitCount / BITS_IN_BYTE) + (bitCount % BITS_IN_BYTE > 0))
+
+
 class IBitTracker
 {
 public:
@@ -117,7 +121,7 @@ public:
 
 	uint16_t GetSize() const
 	{
-		return Size;
+		return BYTES_NEEDED_PER_BIT_COUNT(BitCount);
 	}
 
 	uint16_t GetBitCount() const
@@ -127,7 +131,7 @@ public:
 
 	void OverrideBlock(const uint8_t blockValue, const uint16_t blockIndex = 0)
 	{
-		if (blockIndex < Size)
+		if (blockIndex < GetSize())
 		{
 			Blocks[blockIndex] = blockValue;
 		}
@@ -151,7 +155,7 @@ public:
 
 	uint8_t GetRawBlock(const uint16_t blockIndex = 0)
 	{
-		if (blockIndex < Size)
+		if (blockIndex < GetSize())
 		{
 			return Blocks[blockIndex];
 		}
@@ -161,7 +165,7 @@ public:
 
 	void ClearAll()
 	{
-		for (uint16_t i = 0; i < Size; i++)
+		for (uint16_t i = 0; i < GetSize(); i++)
 		{
 			Blocks[i] = 0;
 		}
@@ -169,7 +173,7 @@ public:
 
 	bool HasSet()
 	{
-		for (uint16_t i = 0; i < Size; i++)
+		for (uint16_t i = 0; i < GetSize(); i++)
 		{
 			if (Blocks[i] > 0)
 			{
