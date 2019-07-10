@@ -100,7 +100,7 @@ template <const uint16_t BitCount>
 class BaseTemplateBitTracker : public IBitTracker
 {
 protected:
-	uint8_t* Blocks;
+	uint8_t* Blocks = nullptr;
 
 protected:
 	void SetBlocksSource(uint8_t* blocks)
