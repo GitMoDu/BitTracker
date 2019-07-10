@@ -117,10 +117,6 @@ private:
 public:
 	BaseTemplateBitTracker() : IBitTracker()
 	{
-		for (uint16_t i = 0; i < GetBitCount(); i++)
-		{
-			ClearBit(i);
-		}
 	}
 
 	uint16_t GetSize() const
