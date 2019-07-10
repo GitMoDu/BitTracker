@@ -55,12 +55,12 @@ public:
 		return false;
 	}
 
-	bool MergeClear(IBitTracker &tracker)
+	bool MergeClear(IBitTracker& tracker)
 	{
 		if (GetBitCount() == tracker.GetBitCount())
 		{
 			for (uint16_t i = 0; i < tracker.GetSize(); i++)
-			{				
+			{
 				OverrideBlock(GetRawBlock(i) & ~tracker.GetRawBlock(i), i);
 			}
 
