@@ -153,6 +153,21 @@ public:
 		}
 	}
 
+	void ReplaceBit(const uint16_t index, const bool enable)
+	{
+		if (index < BitCount)
+		{
+			if (enable)
+			{
+				SetBitInternal(index);
+			}
+			else
+			{
+				ClearBit(index);
+			}
+		}
+	}
+
 	uint8_t GetRawBlock(const uint16_t blockIndex = 0)
 	{
 		if (blockIndex < GetSize())
