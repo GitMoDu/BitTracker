@@ -230,11 +230,6 @@ class TemplateExternalBitTracker : public BaseTemplateBitTracker<BitCount>
 public:
 	TemplateExternalBitTracker(uint8_t* blocksSource = nullptr) : BaseTemplateBitTracker<BitCount>()
 	{
-		SetBlocksSource(blocksSource);		
-	}
-
-	void SetBlocksSource(uint8_t* blocksSource)
-	{
 		BaseTemplateBitTracker<BitCount>::SetBlocksSource(blocksSource);
 	}
 };
