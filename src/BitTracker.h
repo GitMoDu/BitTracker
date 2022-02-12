@@ -69,6 +69,18 @@ public:
 		return false;
 	}
 
+	void ReplaceBit(const uint16_t index, const bool value)
+	{
+		if (value)
+		{
+			SetBit(index);
+		}
+		else
+		{
+			ClearBit(index);
+		}
+	}
+
 	uint16_t GetNextSetIndex(const uint16_t startingIndex = 0)
 	{
 		for (uint16_t i = startingIndex; i < GetBitCount(); i++)
@@ -81,21 +93,9 @@ public:
 
 		return 0;
 	}
-
-	void ReplaceBit(const uint16_t index, const bool value)
-	{
-		if (value)
-		{
-			SetBit(index);
-		}
-		else
-		{
-			ClearBit(index);
-		}
-	}
 };
 
-//BitCount <= 65535
+// BitCount <= 65535
 template <const uint16_t BitCount>
 class BaseTemplateBitTracker : public IBitTracker
 {
@@ -109,7 +109,7 @@ protected:
 	}
 
 private:
-	inline void SetBitInternal(const uint16_t index)
+	void SetBitInternal(const uint16_t index)
 	{
 		Blocks[index / BITS_IN_BYTE] |= 1 << (index % BITS_IN_BYTE);
 	}
@@ -220,7 +220,7 @@ public:
 	TemplateBitTracker() : BaseTemplateBitTracker<BitCount>()
 	{
 		BaseTemplateBitTracker<BitCount>::SetBlocksSource(BlocksData);
-	}	
+	}
 };
 
 //BitCount <= 65535
