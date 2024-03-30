@@ -1,236 +1,63 @@
 // BitTracker.h
-// Provides a way of storing and retrieving the binary state of up to UINT16_MAX values,
 
-#ifndef _BITTRACKER_h
-#define _BITTRACKER_h
+#ifndef _BIT_TRACKER_h
+#define _BIT_TRACKER_h
 
-#include <stdint.h>
+#include "BitTracker/AbstractBitTracker.h"
 
-#define BITS_IN_BYTE		8
-
-
-#define BYTES_NEEDED_PER_BIT_COUNT(bitCount) ((bitCount / BITS_IN_BYTE) + (bitCount % BITS_IN_BYTE > 0))
-
-
-class IBitTracker
+template <const uint8_t BitCount>
+class BitTracker8 : public TemplateBitTracker<uint8_t, BitCount>
 {
 public:
-	virtual uint16_t GetBitCount() const;
-	virtual bool IsBitSet(const uint16_t index);
-	virtual bool HasSet();
-	virtual void SetBit(const uint16_t index);
-	virtual void ClearBit(const uint16_t index);
-	virtual void SetAll();
-	virtual void ClearAll();
-	virtual uint16_t GetSize() const;
-	virtual uint8_t GetRawBlock(const uint16_t blockIndex = 0);
-	virtual void OverrideBlock(const uint8_t blockValue, const uint16_t blockIndex = 0);
-
-public:
-	bool MergeBits(IBitTracker* tracker)
-	{
-		if (GetBitCount() == tracker->GetBitCount())
-		{
-			for (uint16_t i = 0; i < tracker->GetSize(); i++)
-			{
-				OverrideBlock(GetRawBlock(i) | tracker->GetRawBlock(i), i);
-			}
-
-			return true;
-		}
-		return false;
-	}
-
-	bool ReplaceBits(IBitTracker* tracker)
-	{
-		if (GetBitCount() == tracker->GetBitCount())
-		{
-			for (uint16_t i = 0; i < tracker->GetSize(); i++)
-			{
-				OverrideBlock(tracker->GetRawBlock(i), i);
-			}
-
-			return true;
-		}
-		return false;
-	}
-
-	bool MergeClear(IBitTracker& tracker)
-	{
-		if (GetBitCount() == tracker.GetBitCount())
-		{
-			for (uint16_t i = 0; i < tracker.GetSize(); i++)
-			{
-				OverrideBlock(GetRawBlock(i) & ~tracker.GetRawBlock(i), i);
-			}
-
-			return true;
-		}
-		return false;
-	}
-
-	void ReplaceBit(const uint16_t index, const bool value)
-	{
-		if (value)
-		{
-			SetBit(index);
-		}
-		else
-		{
-			ClearBit(index);
-		}
-	}
-
-	uint16_t GetNextSetIndex(const uint16_t startingIndex = 0)
-	{
-		for (uint16_t i = startingIndex; i < GetBitCount(); i++)
-		{
-			if (IsBitSet(i))
-			{
-				return i;
-			}
-		}
-
-		return 0;
-	}
+	BitTracker8() : TemplateBitTracker<uint8_t, BitCount>() {}
 };
 
-// BitCount <= 65535
 template <const uint16_t BitCount>
-class BaseTemplateBitTracker : public IBitTracker
+class BitTracker16 : public TemplateBitTracker<uint16_t, BitCount>
 {
-protected:
-	uint8_t* Blocks = nullptr;
-
-protected:
-	void SetBlocksSource(uint8_t* blocks)
-	{
-		Blocks = blocks;
-	}
-
-private:
-	void SetBitInternal(const uint16_t index)
-	{
-		Blocks[index / BITS_IN_BYTE] |= 1 << (index % BITS_IN_BYTE);
-	}
-
 public:
-	BaseTemplateBitTracker() : IBitTracker()
-	{
-	}
-
-	uint16_t GetSize() const
-	{
-		return BYTES_NEEDED_PER_BIT_COUNT(BitCount);
-	}
-
-	uint16_t GetBitCount() const
-	{
-		return BitCount;
-	}
-
-	void OverrideBlock(const uint8_t blockValue, const uint16_t blockIndex = 0)
-	{
-		if (blockIndex < GetSize())
-		{
-			Blocks[blockIndex] = blockValue;
-		}
-	}
-
-	void SetAll()
-	{
-		for (uint16_t i = 0; i < BitCount; i++)
-		{
-			SetBitInternal(i);
-		}
-	}
-
-	void SetBit(const uint16_t index)
-	{
-		if (index < BitCount)
-		{
-			SetBitInternal(index);
-		}
-	}
-
-	void ReplaceBit(const uint16_t index, const bool enable)
-	{
-		if (index < BitCount)
-		{
-			if (enable)
-			{
-				SetBitInternal(index);
-			}
-			else
-			{
-				ClearBit(index);
-			}
-		}
-	}
-
-	uint8_t GetRawBlock(const uint16_t blockIndex = 0)
-	{
-		if (blockIndex < GetSize())
-		{
-			return Blocks[blockIndex];
-		}
-
-		return 0;
-	}
-
-	void ClearAll()
-	{
-		for (uint16_t i = 0; i < GetSize(); i++)
-		{
-			Blocks[i] = 0;
-		}
-	}
-
-	bool HasSet()
-	{
-		for (uint16_t i = 0; i < GetSize(); i++)
-		{
-			if (Blocks[i] > 0)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	bool IsBitSet(const uint16_t index)
-	{
-		return Blocks[index / BITS_IN_BYTE] & 1 << (index % BITS_IN_BYTE);
-	}
-
-	void ClearBit(const uint16_t index)
-	{
-		Blocks[index / BITS_IN_BYTE] &= ~(1 << (index % BITS_IN_BYTE));
-	}
+	BitTracker16() : TemplateBitTracker<uint16_t, BitCount>() {}
 };
 
-//BitCount <= 65535
-template <const uint16_t BitCount>
-class TemplateBitTracker : public BaseTemplateBitTracker<BitCount>
+template <const uint32_t BitCount>
+class BitTracker32 : public TemplateBitTracker<uint32_t, BitCount>
 {
-private:
-	uint8_t BlocksData[BYTES_NEEDED_PER_BIT_COUNT(BitCount)];
-
 public:
-	TemplateBitTracker() : BaseTemplateBitTracker<BitCount>()
-	{
-		BaseTemplateBitTracker<BitCount>::SetBlocksSource(BlocksData);
-	}
+	BitTracker32() : TemplateBitTracker<uint32_t, BitCount>() {}
 };
 
-//BitCount <= 65535
-template <const uint16_t BitCount>
-class TemplateExternalBitTracker : public BaseTemplateBitTracker<BitCount>
+template <const uint64_t BitCount>
+class BitTracker64 : public TemplateBitTracker<uint64_t, BitCount>
 {
 public:
-	TemplateExternalBitTracker(uint8_t* blocksSource = nullptr) : BaseTemplateBitTracker<BitCount>()
-	{
-		BaseTemplateBitTracker<BitCount>::SetBlocksSource(blocksSource);
-	}
+	BitTracker64() : TemplateBitTracker<uint64_t, BitCount>() {}
+};
+
+template <const uint8_t BitCount>
+class BitTracker8External : public TemplateExternalBitTracker<uint8_t, BitCount>
+{
+public:
+	BitTracker8External(uint8_t* blocksSource) : TemplateExternalBitTracker<uint8_t, BitCount>(blocksSource) {}
+};
+
+template <const uint16_t BitCount>
+class BitTracker16External : public TemplateExternalBitTracker<uint16_t, BitCount>
+{
+public:
+	BitTracker16External(uint8_t* blocksSource) : TemplateExternalBitTracker<uint16_t, BitCount>(blocksSource) {}
+};
+
+template <const uint32_t BitCount>
+class BitTracker32External : public TemplateExternalBitTracker<uint32_t, BitCount>
+{
+public:
+	BitTracker32External(uint8_t* blocksSource) : TemplateExternalBitTracker<uint32_t, BitCount>(blocksSource) {}
+};
+
+template <const uint64_t BitCount>
+class BitTracker64External : public TemplateExternalBitTracker<uint64_t, BitCount>
+{
+public:
+	BitTracker64External(uint8_t* blocksSource) : TemplateExternalBitTracker<uint64_t, BitCount>(blocksSource) {}
 };
 #endif
