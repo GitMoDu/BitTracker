@@ -10,22 +10,21 @@ namespace BitTracker
 {
 	static constexpr uint8_t BITS_IN_BYTE = 8;
 
-	static constexpr size_t BlockCount(const uint64_t bitCount)
+	static constexpr size_t BlockCount(const uint32_t bitCount)
 	{
 		return (bitCount / BITS_IN_BYTE) + ((bitCount % BITS_IN_BYTE) > 0) * 1;
 	}
 }
 
 /// <summary>
-/// Provides a way of storing and retrieving the binary state of up to UINT64_MAX values.
+/// Provides a way of storing and retrieving the binary state of up to UINT32_MAX values.
 /// </summary>
 /// <param name="UInt">The integer primitive used to address blocks of bits:
 /// - uint8_t for up to UINT8_MAX bits
 /// - uint16_t for up to UINT16_MAX bits
 /// - uint32_t for up to UINT32_MAX bits
-/// - uint64_t for up to UINT64_MAX bits
 /// </param>
-/// <param name="BitCount">How many individual bits are used. [1;UINT64_MAX]</param>
+/// <param name="BitCount">How many individual bits are used. [1;UINT32_MAX]</param>
 template<typename UInt, const UInt BitCount>
 class AbstractBitTracker
 {

@@ -26,13 +26,6 @@ public:
 	BitTracker32() : TemplateBitTracker<uint32_t, BitCount>() {}
 };
 
-template <const uint64_t BitCount>
-class BitTracker64 : public TemplateBitTracker<uint64_t, BitCount>
-{
-public:
-	BitTracker64() : TemplateBitTracker<uint64_t, BitCount>() {}
-};
-
 template <const uint8_t BitCount>
 class BitTracker8External : public TemplateExternalBitTracker<uint8_t, BitCount>
 {
@@ -52,12 +45,5 @@ class BitTracker32External : public TemplateExternalBitTracker<uint32_t, BitCoun
 {
 public:
 	BitTracker32External(uint8_t* blocksSource) : TemplateExternalBitTracker<uint32_t, BitCount>(blocksSource) {}
-};
-
-template <const uint64_t BitCount>
-class BitTracker64External : public TemplateExternalBitTracker<uint64_t, BitCount>
-{
-public:
-	BitTracker64External(uint8_t* blocksSource) : TemplateExternalBitTracker<uint64_t, BitCount>(blocksSource) {}
 };
 #endif
