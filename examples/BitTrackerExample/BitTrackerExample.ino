@@ -1,13 +1,9 @@
-
-
 #include <BitTracker.h>
 
 #define SERIAL_BAUD_RATE 9600
 
-//#define TEST_MAX_SIZE
 
-
-#define TEST_SIZE 100
+#define TEST_SIZE 1000
 
 
 BitTracker8<1> TestMin;
@@ -24,10 +20,6 @@ BitTracker8External<32> Test32External(External);
 TemplateBitTracker<UINT16_MAX> TestMax;
 #endif
 
-
-
-uint32_t Start, Elapsed;
-uint8_t CallCounter;
 
 void setup()
 {
@@ -68,18 +60,6 @@ void setup()
 	Serial.println();
 	DebugBitTracker<uint16_t, 257>(&Test257, true);
 
-
-
-
-
-#ifdef TEST_MAX_SIZE
-	Serial.println(F("Bit Tracker Template Max"));
-	Serial.println();
-	DebugBitTracker(&TestMax, true);
-	TemplateBitTracker<UINT16_MAX> TestMax;
-#endif
-
-
 	Serial.println();
 	Serial.println();
 
@@ -118,48 +98,42 @@ void DebugBitTracker(TemplateBitTracker<UInt, BitCount>* bitTracker, const bool 
 	Serial.print(F(" bits took "));
 
 	volatile uint8_t executor = 0;
-
-	Start = micros();
+	uint32_t compare = 0;
+	uint32_t start = micros();
 	for (size_t j = 0; j < TEST_SIZE; j++)
 	{
-		for (size_t i = 0; i < bitTracker->GetBitCount(); i++)
-		{
-			executor++;
-		}
-	}
-	const uint32_t calibration = micros() * 1000 - Start * 1000;
-
-	for (size_t j = 0; j < TEST_SIZE; j++)
-	{
-		for (size_t i = 0; i < bitTracker->GetBitCount(); i++)
+		for (UInt i = 0; i < bitTracker->GetBitCount(); i++)
 		{
 			bitTracker->IsBitSet(i);
 			executor++;
 		}
 	}
-	Elapsed = micros() * 1000 - Start * 1000;
+	uint64_t durationNanos = uint64_t(micros() - start) * 1000;
+	uint32_t stepSumNanos = durationNanos / bitTracker->GetBitCount();
+	uint32_t stepAverageNanos = stepSumNanos / TEST_SIZE;
 
-	Serial.print((Elapsed - calibration) / (bitTracker->GetBitCount() * TEST_SIZE));
+	Serial.print(stepAverageNanos);
 	Serial.println(F(" ns per bit."));
 	Serial.println();
-
 
 	Serial.print(F("Writing "));
 	Serial.print(bitTracker->GetBitCount());
 	Serial.print(F(" bits took "));
 
-	Start = micros();
+	start = micros();
 	for (size_t j = 0; j < TEST_SIZE; j++)
 	{
-		for (size_t i = 0; i < bitTracker->GetBitCount(); i++)
+		for (UInt i = 0; i < bitTracker->GetBitCount(); i++)
 		{
-			bitTracker->SetBit(i);
 			executor++;
+			bitTracker->SetBit(i);
 		}
 	}
-	Elapsed = micros() * 1000 - Start * 1000;
+	durationNanos = uint64_t(micros() - start) * 1000;
+	stepSumNanos = durationNanos / bitTracker->GetBitCount();
+	stepAverageNanos = stepSumNanos / TEST_SIZE;
 
-	Serial.print((Elapsed - calibration) / (bitTracker->GetBitCount() * TEST_SIZE));
+	Serial.print(stepAverageNanos);
 	Serial.println(F(" ns per bit."));
 	Serial.println();
 
