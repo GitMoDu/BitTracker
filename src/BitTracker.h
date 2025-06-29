@@ -1,5 +1,3 @@
-// BitTracker.h
-
 #ifndef _BIT_TRACKER_h
 #define _BIT_TRACKER_h
 

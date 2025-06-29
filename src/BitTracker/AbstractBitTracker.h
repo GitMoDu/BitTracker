@@ -48,7 +48,8 @@ public:
 	/// <param name="blocks">Pre-allocated raw blocks for bit storage.</param>
 	AbstractBitTracker(uint8_t* blocks)
 		: Blocks(blocks)
-	{}
+	{
+	}
 
 	static constexpr size_t GetSize()
 	{
@@ -67,10 +68,7 @@ public:
 	/// <param name="index">[0; BitCount-1]</param>
 	void SetBit(const UInt index)
 	{
-		if (index < BitCount)
-		{
-			Blocks[index / BITS_IN_BYTE] |= (1 << (index % BITS_IN_BYTE));
-		}
+		Blocks[index / BITS_IN_BYTE] |= ((uint8_t)1 << (index % BITS_IN_BYTE));
 	}
 
 	/// <summary>
@@ -80,7 +78,7 @@ public:
 	/// <returns>True if bit is set.</returns>
 	bool IsBitSet(const UInt index) const
 	{
-		return (Blocks[index / BITS_IN_BYTE] & (((uint8_t)1) << (index % BITS_IN_BYTE)));
+		return Blocks[index / BITS_IN_BYTE] & (((uint8_t)1) << (index % BITS_IN_BYTE));
 	}
 
 	/// <summary>
@@ -141,7 +139,7 @@ public:
 	/// <returns>True if any bit is set.</returns>
 	bool HasSet() const
 	{
-		for (size_t i = 0; i < GetSize(); i++)
+		for (UInt i = 0; i < GetSize(); i++)
 		{
 			if (Blocks[i] > 0)
 			{
@@ -159,14 +157,11 @@ public:
 	/// <returns>Index of the next set bit. 0 if none found.</returns>
 	UInt GetNextSetIndex(const UInt startingIndex = 0) const
 	{
-		if (startingIndex < BitCount)
+		for (UInt i = startingIndex; i < BitCount; i++)
 		{
-			for (UInt i = startingIndex; i < BitCount; i++)
+			if (IsBitSet(i))
 			{
-				if (IsBitSet(i))
-				{
-					return i;
-				}
+				return i;
 			}
 		}
 
@@ -241,7 +236,8 @@ private:
 
 public:
 	TemplateBitTracker() : BaseClass(BlocksData)
-	{}
+	{
+	}
 };
 
 template <typename UInt, const UInt BitCount>
