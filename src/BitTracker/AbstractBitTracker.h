@@ -78,7 +78,7 @@ public:
 	/// </summary>
 	/// <param name="index">[0; BitCount-1]</param>
 	/// <returns>True if bit is set.</returns>
-	const bool IsBitSet(const UInt index)
+	bool IsBitSet(const UInt index) const
 	{
 		return (Blocks[index / BITS_IN_BYTE] & (((uint8_t)1) << (index % BITS_IN_BYTE)));
 	}
@@ -139,7 +139,7 @@ public:
 	/// Status of all bits.
 	/// </summary>
 	/// <returns>True if any bit is set.</returns>
-	const bool HasSet()
+	bool HasSet() const
 	{
 		for (size_t i = 0; i < GetSize(); i++)
 		{
@@ -157,7 +157,7 @@ public:
 	/// </summary>
 	/// <param name="startingIndex"></param>
 	/// <returns>Index of the next set bit. 0 if none found.</returns>
-	const UInt GetNextSetIndex(const UInt startingIndex = 0)
+	UInt GetNextSetIndex(const UInt startingIndex = 0) const
 	{
 		if (startingIndex < BitCount)
 		{
@@ -174,7 +174,7 @@ public:
 	}
 
 public:
-	const bool OrBits(AbstractBitTracker<UInt, BitCount>* tracker)
+	bool OrBits(AbstractBitTracker<UInt, BitCount>* tracker)
 	{
 		if (GetBitCount() == tracker->GetBitCount())
 		{
@@ -189,7 +189,7 @@ public:
 		return false;
 	}
 
-	const bool CopyBits(AbstractBitTracker<UInt, BitCount>* tracker)
+	bool CopyBits(AbstractBitTracker<UInt, BitCount>* tracker)
 	{
 		if (GetBitCount() == tracker->GetBitCount())
 		{
@@ -204,7 +204,7 @@ public:
 		return false;
 	}
 
-	const bool AndBits(AbstractBitTracker<UInt, BitCount>& tracker)
+	bool AndBits(AbstractBitTracker<UInt, BitCount>& tracker)
 	{
 		if (GetBitCount() == tracker.GetBitCount())
 		{
