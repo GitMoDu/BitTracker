@@ -16,10 +16,6 @@ BitTracker16< 257> Test257;
 uint8_t External[32];
 BitTracker8External<32> Test32External(External);
 
-#ifdef TEST_MAX_SIZE
-TemplateBitTracker<UINT16_MAX> TestMax;
-#endif
-
 
 void setup()
 {
@@ -92,50 +88,6 @@ void DebugBitTracker(TemplateBitTracker<UInt, BitCount>* bitTracker, const bool 
 	Serial.print(F("Set all: "));
 	bitTracker->SetAll();
 	OutputBitTrackerStatus<TemplateBitTracker<UInt, BitCount>>(bitTracker, blockView);
-
-	Serial.print(F("Reading "));
-	Serial.print(bitTracker->GetBitCount());
-	Serial.print(F(" bits took "));
-
-	volatile uint8_t executor = 0;
-	uint32_t compare = 0;
-	uint32_t start = micros();
-	for (size_t j = 0; j < TEST_SIZE; j++)
-	{
-		for (UInt i = 0; i < bitTracker->GetBitCount(); i++)
-		{
-			bitTracker->IsBitSet(i);
-			executor++;
-		}
-	}
-	uint64_t durationNanos = uint64_t(micros() - start) * 1000;
-	uint32_t stepSumNanos = durationNanos / bitTracker->GetBitCount();
-	uint32_t stepAverageNanos = stepSumNanos / TEST_SIZE;
-
-	Serial.print(stepAverageNanos);
-	Serial.println(F(" ns per bit."));
-	Serial.println();
-
-	Serial.print(F("Writing "));
-	Serial.print(bitTracker->GetBitCount());
-	Serial.print(F(" bits took "));
-
-	start = micros();
-	for (size_t j = 0; j < TEST_SIZE; j++)
-	{
-		for (UInt i = 0; i < bitTracker->GetBitCount(); i++)
-		{
-			executor++;
-			bitTracker->SetBit(i);
-		}
-	}
-	durationNanos = uint64_t(micros() - start) * 1000;
-	stepSumNanos = durationNanos / bitTracker->GetBitCount();
-	stepAverageNanos = stepSumNanos / TEST_SIZE;
-
-	Serial.print(stepAverageNanos);
-	Serial.println(F(" ns per bit."));
-	Serial.println();
 
 	Serial.println(F("Linear clear walk..."));
 	Serial.println();
